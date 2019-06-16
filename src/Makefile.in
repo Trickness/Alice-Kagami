@@ -104,6 +104,14 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
+libAdaptor_a_AR = $(AR) $(ARFLAGS)
+libAdaptor_a_LIBADD =
+am_libAdaptor_a_OBJECTS = WonderlandAdaptor.$(OBJEXT)
+libAdaptor_a_OBJECTS = $(am_libAdaptor_a_OBJECTS)
+libCastBook_a_AR = $(AR) $(ARFLAGS)
+libCastBook_a_LIBADD =
+am_libCastBook_a_OBJECTS = CastBook.$(OBJEXT)
+libCastBook_a_OBJECTS = $(am_libCastBook_a_OBJECTS)
 libKagami_a_AR = $(AR) $(ARFLAGS)
 libKagami_a_LIBADD =
 am_libKagami_a_OBJECTS = AliceNoKagami.$(OBJEXT)
@@ -123,7 +131,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/AliceNoKagami.Po
+am__depfiles_remade = ./$(DEPDIR)/AliceNoKagami.Po \
+	./$(DEPDIR)/CastBook.Po ./$(DEPDIR)/WonderlandAdaptor.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -138,8 +147,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libKagami_a_SOURCES)
-DIST_SOURCES = $(libKagami_a_SOURCES)
+SOURCES = $(libAdaptor_a_SOURCES) $(libCastBook_a_SOURCES) \
+	$(libKagami_a_SOURCES)
+DIST_SOURCES = $(libAdaptor_a_SOURCES) $(libCastBook_a_SOURCES) \
+	$(libKagami_a_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -290,9 +301,16 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-noinst_LIBRARIES = libKagami.a
+noinst_LIBRARIES = libKagami.a libAdaptor.a libCastBook.a
 libKagami_a_SOURCES = AliceNoKagami.cpp
-include_HEADERS = ../include/AliceNoKagami.hpp third-party/gumbo-parser/gumbo.h
+libAdaptor_a_SOURCES = WonderlandAdaptor.cpp
+libCastBook_a_SOURCES = CastBook.cpp
+include_HEADERS = \
+    ../include/AliceNoKagami.hpp \
+    ../include/WonderlandAdaptor.hpp \
+    ../include/Config.hpp \
+    ../include/CastBook.hpp third-party/gumbo-parser/gumbo.h
+
 all: all-am
 
 .SUFFIXES:
@@ -330,6 +348,16 @@ $(am__aclocal_m4_deps):
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
 
+libAdaptor.a: $(libAdaptor_a_OBJECTS) $(libAdaptor_a_DEPENDENCIES) $(EXTRA_libAdaptor_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libAdaptor.a
+	$(AM_V_AR)$(libAdaptor_a_AR) libAdaptor.a $(libAdaptor_a_OBJECTS) $(libAdaptor_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libAdaptor.a
+
+libCastBook.a: $(libCastBook_a_OBJECTS) $(libCastBook_a_DEPENDENCIES) $(EXTRA_libCastBook_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libCastBook.a
+	$(AM_V_AR)$(libCastBook_a_AR) libCastBook.a $(libCastBook_a_OBJECTS) $(libCastBook_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libCastBook.a
+
 libKagami.a: $(libKagami_a_OBJECTS) $(libKagami_a_DEPENDENCIES) $(EXTRA_libKagami_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libKagami.a
 	$(AM_V_AR)$(libKagami_a_AR) libKagami.a $(libKagami_a_OBJECTS) $(libKagami_a_LIBADD)
@@ -342,6 +370,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AliceNoKagami.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CastBook.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WonderlandAdaptor.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -512,6 +542,8 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/AliceNoKagami.Po
+	-rm -f ./$(DEPDIR)/CastBook.Po
+	-rm -f ./$(DEPDIR)/WonderlandAdaptor.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -558,6 +590,8 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/AliceNoKagami.Po
+	-rm -f ./$(DEPDIR)/CastBook.Po
+	-rm -f ./$(DEPDIR)/WonderlandAdaptor.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

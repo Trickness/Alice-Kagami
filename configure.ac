@@ -12,6 +12,7 @@ AC_LANG_PUSH([C++])
 
 # Checks for programs.
 AC_PROG_CXX
+AC_PROG_CC
 
 # Checks for libraries.
 AC_CHECK_LIB(pthread,pthread_create,[],[AC_MSG_ERROR([No pthread support])],[])

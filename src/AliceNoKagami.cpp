@@ -2,10 +2,11 @@
 using namespace std;
 
 AliceNoKagami::AliceNoKagami(){
-    cout << "Alice's Kagami Version 0.1" << endl;
+    this->mAdaptor = new WonderlandAdaptor();
+    DEBUG_MSG("Alice's Kagami Version 0.1");
 }
 
 AliceNoKagami::~AliceNoKagami(){
+    delete this->mAdaptor;
 }
-
 

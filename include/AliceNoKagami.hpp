@@ -2,11 +2,15 @@
 #define _ALICE_NO_KAGAMI_
 
 #include <iostream>
+#include "Config.hpp"
+#include "WonderlandAdaptor.hpp"
 
 class AliceNoKagami{
     public:
         AliceNoKagami();
         ~AliceNoKagami();
+    private:
+        WonderlandAdaptor *mAdaptor;
 };
 
 #endif

@@ -103,8 +103,8 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_KagamiConsole_OBJECTS = KagamiConsole.$(OBJEXT)
 KagamiConsole_OBJECTS = $(am_KagamiConsole_OBJECTS)
-KagamiConsole_DEPENDENCIES = src/libKagami.a \
-	src/third-party/gumbo-parser/libgumbo.a
+KagamiConsole_DEPENDENCIES = src/libKagami.a src/libAdaptor.a \
+	src/libCastBook.a src/third-party/gumbo-parser/libgumbo.a
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -321,7 +321,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src src/third-party/gumbo-parser
-KagamiConsole_LDADD = src/libKagami.a src/third-party/gumbo-parser/libgumbo.a
+KagamiConsole_LDADD = src/libKagami.a src/libAdaptor.a src/libCastBook.a src/third-party/gumbo-parser/libgumbo.a
 KagamiConsole_LIBS = lpthread -lsqlite3
 KagamiConsole_SOURCES = KagamiConsole.cpp
 all: config.h
