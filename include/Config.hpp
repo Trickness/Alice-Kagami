@@ -12,4 +12,7 @@
 #define DEBUG_MSG(MSG)
 #endif
 
+#define CHECK_PARAM_PTR(PARAM,RETURN)  \
+    if (PARAM == nullptr){ DEBUG_MSG(__FUNCTION__ << " : " << __LINE__ << ": Null param ptr"); return RETURN; }
+
 #endif

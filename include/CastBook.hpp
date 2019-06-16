@@ -42,8 +42,8 @@ class CastBook{
         /* Get data from CastBook 
             return nullptr if no cache
         */
-        CastBookRecord* Get(const char* URI);
-        bool GetAll(const char* URI, std::vector<std::unique_ptr<CastBookRecord>>& Records);
+        std::unique_ptr<CastBookRecord> Get(const char* URI);
+        size_t GetAll(const char* URI, std::vector<std::unique_ptr<CastBookRecord>>& Records);
     private:
         sqlite3*    mBook;
 };
