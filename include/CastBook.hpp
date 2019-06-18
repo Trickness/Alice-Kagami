@@ -9,7 +9,8 @@
 #include "Config.hpp"
 
 
-#define BOOK_LOCATION strcat(getenv("HOME"),"/.ACGNCastBook.db")
+//#define BOOK_LOCATION strcat(getenv("HOME"),"/.ACGNCastBook.db")
+#define BOOK_LOCATION "/home/tricks/.ACGNCastBook.db"
 
 class CastBookRecord{
     public:
@@ -37,13 +38,22 @@ class CastBook{
         /* Save data to CastBook 
             throw sqlite3 error code on expection
         */
-        void Put(const char* URI, const void* Buffer, size_t bytes);
+        void PutRecord(const char* URI, const void* Buffer, size_t bytes);
 
         /* Get data from CastBook 
             return nullptr if no cache
         */
-        std::unique_ptr<CastBookRecord> Get(const char* URI);
-        size_t GetAll(const char* URI, std::vector<std::unique_ptr<CastBookRecord>>& Records);
+        std::unique_ptr<CastBookRecord> GetRecord(const char* URI);
+        size_t GetAllRecord(const char* URI, std::vector<std::unique_ptr<CastBookRecord>>& Records);
+
+
+        /*  Handle domain and it's cookies, userinfo......
+         */
+        std::string GetRosterCookies(const char* Domain);     // you should free() it yourself
+        std::string GetRosterCustomInfo(const char* Domain);  // you should free() it youreself
+        void  SetRosterCookies(const char* Domain, const char* Cookies);
+        void  AddRosterCookies(const char* Domain, const char* Cookies);
+
     private:
         sqlite3*    mBook;
 };

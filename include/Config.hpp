@@ -7,7 +7,7 @@
 
 #ifdef DEBUG
 #define DEBUG_MSG(MSG)\
-    std::cout << "[" << __FILE__ << "]" << MSG << std::endl;
+    std::cout << "[" << __FILE__ << ":" << __FUNCTION__ << "] " << MSG << std::endl;
 #else
 #define DEBUG_MSG(MSG)
 #endif

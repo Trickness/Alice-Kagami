@@ -2,8 +2,6 @@
 #include <boost/uuid/detail/md5.hpp>
 #include <boost/algorithm/hex.hpp>
 
-
-
 using boost::uuids::detail::md5;
 using namespace std;
 
@@ -24,6 +22,17 @@ CastBook::CastBook(const char* BookLocation){
         DEBUG_MSG(sqliteErrorMsg);
         throw(result);
     }
+    
+    result = sqlite3_exec(this->mBook, "CREATE TABLE IF NOT EXISTS 'Roster' ( \
+                                        DOMAIN CHAR(64) PRIMARY KEY NOT NULL, \
+                                        COOKIES TEXT,       \
+                                        CUSTOM_INFO TEXT    \
+    )", NULL, NULL, &sqliteErrorMsg);
+    if(result != SQLITE_OK){
+        DEBUG_MSG(sqliteErrorMsg);
+        throw(result);
+    }
+    
 }
 
 CastBook::~CastBook(){
@@ -32,7 +41,7 @@ CastBook::~CastBook(){
     }
 }
 
-void CastBook::Put(const char* URI, const void* Buffer, size_t bytes){
+void CastBook::PutRecord(const char* URI, const void* Buffer, size_t bytes){
     md5 hash;
     hash.process_bytes(Buffer,bytes);
     hash.process_bytes(URI,strlen(URI));
@@ -52,7 +61,7 @@ void CastBook::Put(const char* URI, const void* Buffer, size_t bytes){
     sqlite3_finalize(stmt);
 }
 
-size_t CastBook::GetAll(const char* URI, vector<unique_ptr<CastBookRecord>>& Records){
+size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>>& Records){
     sqlite3_stmt *stmt;
     char sql[9216];
     memset(sql, 0, 9216);
@@ -83,9 +92,9 @@ size_t CastBook::GetAll(const char* URI, vector<unique_ptr<CastBookRecord>>& Rec
     return Records.size();
 }
 
-std::unique_ptr<CastBookRecord> CastBook::Get(const char* URI){
+std::unique_ptr<CastBookRecord> CastBook::GetRecord(const char* URI){
     vector<unique_ptr<CastBookRecord>> Records;
-    size_t result = this->GetAll(URI,Records);
+    size_t result = this->GetAllRecord(URI,Records);
     if(result == 0){
         return nullptr;
     }else{
@@ -93,6 +102,45 @@ std::unique_ptr<CastBookRecord> CastBook::Get(const char* URI){
         return_var.reset(Records[result-1].release());
         return return_var;
     }
+}
+
+
+string CastBook::GetRosterCookies(const char* Domain){
+    sqlite3_stmt *stmt;
+    char sql[256];
+    memset(sql, 0, 256);
+    sprintf(sql, "SELECT COOKIES FROM Roster WHERE DOMAIN = '%s'",Domain);
+    sqlite3_prepare(this->mBook, sql, strlen(sql), &stmt, NULL);
+    if(sqlite3_step(stmt) != SQLITE_ROW){
+        DEBUG_MSG("No Cookies found for Domain[" << Domain << "]");
+        return "";
+    }
+    string return_var = string((char*)sqlite3_column_text(stmt,0));
+    sqlite3_finalize(stmt);
+    return return_var;
+}
+
+string CastBook::GetRosterCustomInfo(const char* Domain){
+    sqlite3_stmt *stmt;
+    char sql[256];
+    memset(sql, 0, 256);
+    sprintf(sql, "SELECT CUSTOM_INFO FROM Roster WHERE DOMAIN = '%s'",Domain);
+    sqlite3_prepare(this->mBook, sql, strlen(sql), &stmt, NULL);
+    if(sqlite3_step(stmt) != SQLITE_ROW){
+        DEBUG_MSG("No Cookies found for Domain[" << Domain << "]");
+        return "";
+    }
+    string return_var = string((char*)sqlite3_column_text(stmt,0));
+    sqlite3_finalize(stmt);
+    return return_var;
+}
+
+void CastBook::SetRosterCookies(const char* Domain, const char* Cookies){
+
+}
+
+void CastBook::AddRosterCookies(const char* Domain, const char* Cookies){
+
 }
 
 
