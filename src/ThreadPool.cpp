@@ -7,7 +7,6 @@ ThreadPool::ThreadPool(int init_size)
     mCond(),
     mIsStarted(false),
     mInitThreadsSize(init_size){
-        this->mTasks = new std::deque<TaskT>;
         this->Start();
 }
 
@@ -15,8 +14,7 @@ ThreadPool::~ThreadPool(){
     if(mIsStarted){
         this->Stop();
     }
-    this->mTasks->clear();
-    //delete this->mTasks; // delete lead memory error
+    this->mTasks.clear();
 }
 
 void ThreadPool::Start(){
@@ -39,7 +37,7 @@ void ThreadPool::Stop(){
         (*it)->join();
         delete *it;
     }
-    //mThreads.clear();
+    mThreads.clear();
 }
 
 void ThreadPool::ThreadLoop(){
@@ -55,20 +53,23 @@ void ThreadPool::ThreadLoop(){
 
 void ThreadPool::AddTask(const TaskT &task){
     std::unique_lock<std::mutex> lock(this->mMutex);
-    this->mTasks->push_back(task);
+    this->mTasks.push_back(task);
     this->mCond.notify_one();
 }
 
 ThreadPool::TaskT ThreadPool::Take(){
     std::unique_lock<std::mutex> lock(this->mMutex);
-    while(this->mTasks->empty() && this->mIsStarted){
+    while(this->mTasks.empty() && this->mIsStarted){
         DEBUG_MSG(std::this_thread::get_id() << "::WaitTask");
         this->mCond.wait(lock);
     }
-
-    TaskT task = this->mTasks->front();
-    this->mTasks->pop_front();
-
+    TaskT task = nullptr;
+    if(!this->mTasks.empty()){
+        task = this->mTasks.front();
+        this->mTasks.pop_front();
+        
+    }
+    DEBUG_MSG("Deque Size --> " << this->mTasks.size());
     DEBUG_MSG(std::this_thread::get_id() << "::Wakeup");
     return task;
 }

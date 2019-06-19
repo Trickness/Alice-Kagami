@@ -30,7 +30,7 @@ class ThreadPool{
         TaskT Take();
 
         typedef std::vector<std::thread*> ThreadsT;
-        typedef std::deque<TaskT>* TasksT;
+        typedef std::deque<TaskT> TasksT;
 
         int mInitThreadsSize;
 
