@@ -11,35 +11,54 @@
 /*  Network Connector & Cache controller */
 /*  Should only one instance in the program */
 
+namespace Wonderland{
+    enum CachePolicy{ONLY_FROM_CACHE, FIRST_FROM_CACHE, NEVER_FROM_CACHE};    
+    enum Status{SUCCESS, FAILED};
+    //      return_status              data     data_size     // data will be free() after this function return
+    typedef std::function<void(Status, void* data, size_t)> NetworkCallback; 
+    typedef std::function<void(Status, void* data, size_t)> ParserCallback;
+}
+
 class WonderlandAdaptor{
     public:
-        enum CachePolicy{ONLY_FROM_CACHE, FIRST_FROM_CACHE, NEVER_FROM_CACHE};    
-        enum Status{SUCCESS, FAILED};
-        //                        return_status              data     data_size     !data should be free() manualy
-        typedef std::function<void(WonderlandAdaptor::Status, void*, size_t)> Callback; 
         WonderlandAdaptor();
         ~WonderlandAdaptor(); 
         
         
-        size_t GetResourceAnsync( \
+        size_t GetHTMLAsync( \
             const char* URI, \
-            WonderlandAdaptor::CachePolicy Policy = FIRST_FROM_CACHE,    \
-            WonderlandAdaptor::Callback _Callback = nullptr   \
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
+            Wonderland::NetworkCallback _Callback = nullptr   \
         );
 
-        /* Buffer need to be a void ptr, and you should free() it yourself */
-        size_t GetResourceSync( \
+        /* Buffer need to be a void ptr, and you should free() it yourself (thread safe)*/
+        size_t GetHTMLSync( \
             const char* URI, \
             void *&Buffer,  \
-            WonderlandAdaptor::CachePolicy Policy = FIRST_FROM_CACHE      \
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      \
         );
-        void   PutResource(const char* URI, const void *Buffer, size_t Bytes);
+        virtual bool CheckURI(const char* URI) const = 0;
+        virtual std::string ParseContent(void* , size_t) const = 0;
 
-        void NetworkTask(const char*, WonderlandAdaptor::Callback _Callback);
-        void CallbackTest(WonderlandAdaptor::Status, const char* , size_t);
+        size_t GetParsedAsync(  \
+            const char* URI, \
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
+            Wonderland::ParserCallback _Callback = nullptr   \
+        );
+
+        /* Buffer need to be a void ptr, and you should free() it yourself, (thread safe) */
+        size_t GetParsedSync( \
+            const char* URI, \
+            void *&Buffer,  \
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      \
+        );
+        void   CacheResource(const char* URI, const void *Buffer, size_t Bytes);
+
     protected:
         WonderlandAdaptor(const WonderlandAdaptor &);
-        const WonderlandAdaptor operator=(const WonderlandAdaptor&);
+        void NetworkTask(const char*URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
+        Wonderland::Status NetworkFetch(const char* URI, void *&Buffer, size_t &bytes);
+        void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::ParserCallback _Callback);
     private:
         CastBook *mCastBook;
         ThreadPool mThreadPool;

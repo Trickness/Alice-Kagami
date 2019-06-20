@@ -106,9 +106,10 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libKagami_a_AR = $(AR) $(ARFLAGS)
 libKagami_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libKagami_a_OBJECTS = AliceNoKagami.$(OBJEXT) \
-	WonderlandAdaptor.$(OBJEXT) CastBook.$(OBJEXT) \
-	ThreadPool.$(OBJEXT)
+	WonderlandAdaptor.$(OBJEXT) Bangumi/BangumiAdaptor.$(OBJEXT) \
+	CastBook.$(OBJEXT) ThreadPool.$(OBJEXT)
 libKagami_a_OBJECTS = $(am_libKagami_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -127,7 +128,8 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/AliceNoKagami.Po \
 	./$(DEPDIR)/CastBook.Po ./$(DEPDIR)/ThreadPool.Po \
-	./$(DEPDIR)/WonderlandAdaptor.Po
+	./$(DEPDIR)/WonderlandAdaptor.Po \
+	Bangumi/$(DEPDIR)/BangumiAdaptor.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -293,16 +295,18 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign subdir-objects
 noinst_LIBRARIES = libKagami.a 
 libKagami_a_SOURCES = AliceNoKagami.cpp\
                     WonderlandAdaptor.cpp \
+                    Bangumi/BangumiAdaptor.cpp \
                     CastBook.cpp \
                     ThreadPool.cpp 
 
 include_HEADERS = \
     ../include/AliceNoKagami.hpp \
     ../include/WonderlandAdaptor.hpp \
+    ../include/Bangumi/BangumiAdaptor.hpp \
     ../include/Config.hpp \
     ../include/CastBook.hpp third-party/gumbo-parser/gumbo.h \
     ../include/ThreadPool.hpp
@@ -343,6 +347,14 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+Bangumi/$(am__dirstamp):
+	@$(MKDIR_P) Bangumi
+	@: > Bangumi/$(am__dirstamp)
+Bangumi/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) Bangumi/$(DEPDIR)
+	@: > Bangumi/$(DEPDIR)/$(am__dirstamp)
+Bangumi/BangumiAdaptor.$(OBJEXT): Bangumi/$(am__dirstamp) \
+	Bangumi/$(DEPDIR)/$(am__dirstamp)
 
 libKagami.a: $(libKagami_a_OBJECTS) $(libKagami_a_DEPENDENCIES) $(EXTRA_libKagami_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libKagami.a
@@ -351,6 +363,7 @@ libKagami.a: $(libKagami_a_OBJECTS) $(libKagami_a_DEPENDENCIES) $(EXTRA_libKagam
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f Bangumi/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -359,6 +372,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CastBook.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ThreadPool.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WonderlandAdaptor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@Bangumi/$(DEPDIR)/BangumiAdaptor.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -367,15 +381,17 @@ $(am__depfiles_remade):
 am--depfiles: $(am__depfiles_remade)
 
 .cpp.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
@@ -519,6 +535,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f Bangumi/$(DEPDIR)/$(am__dirstamp)
+	-rm -f Bangumi/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -532,6 +550,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/CastBook.Po
 	-rm -f ./$(DEPDIR)/ThreadPool.Po
 	-rm -f ./$(DEPDIR)/WonderlandAdaptor.Po
+	-rm -f Bangumi/$(DEPDIR)/BangumiAdaptor.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -581,6 +600,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/CastBook.Po
 	-rm -f ./$(DEPDIR)/ThreadPool.Po
 	-rm -f ./$(DEPDIR)/WonderlandAdaptor.Po
+	-rm -f Bangumi/$(DEPDIR)/BangumiAdaptor.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

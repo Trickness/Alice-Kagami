@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include "Config.hpp"
-#include "WonderlandAdaptor.hpp"
+#include "Bangumi/BangumiAdaptor.hpp"
 
 class AliceNoKagami{
     public:
         AliceNoKagami();
         ~AliceNoKagami();
     private:
-        WonderlandAdaptor *mAdaptor;
+        BangumiAdaptor *mAdaptor;
 };
 
 #endif
