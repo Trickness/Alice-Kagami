@@ -28,5 +28,11 @@ libgumbo_a_SOURCES = \
 				util.c \
 				util.h \
 				vector.c \
-				vector.h
+				vector.h \
+				Document.cpp \
+				Node.cpp \
+				Object.cpp \
+				QueryUtil.cpp \
+				Selection.cpp \
+				Selector.cpp 
 include_HEADERS = gumbo.h tag_enum.h

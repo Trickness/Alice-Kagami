@@ -111,7 +111,9 @@ am_libgumbo_a_OBJECTS = libgumbo_a-attribute.$(OBJEXT) \
 	libgumbo_a-parser.$(OBJEXT) libgumbo_a-string_buffer.$(OBJEXT) \
 	libgumbo_a-string_piece.$(OBJEXT) libgumbo_a-tag.$(OBJEXT) \
 	libgumbo_a-tokenizer.$(OBJEXT) libgumbo_a-utf8.$(OBJEXT) \
-	libgumbo_a-util.$(OBJEXT) libgumbo_a-vector.$(OBJEXT)
+	libgumbo_a-util.$(OBJEXT) libgumbo_a-vector.$(OBJEXT) \
+	Document.$(OBJEXT) Node.$(OBJEXT) Object.$(OBJEXT) \
+	QueryUtil.$(OBJEXT) Selection.$(OBJEXT) Selector.$(OBJEXT)
 libgumbo_a_OBJECTS = $(am_libgumbo_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -128,7 +130,10 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/libgumbo_a-attribute.Po \
+am__depfiles_remade = ./$(DEPDIR)/Document.Po ./$(DEPDIR)/Node.Po \
+	./$(DEPDIR)/Object.Po ./$(DEPDIR)/QueryUtil.Po \
+	./$(DEPDIR)/Selection.Po ./$(DEPDIR)/Selector.Po \
+	./$(DEPDIR)/libgumbo_a-attribute.Po \
 	./$(DEPDIR)/libgumbo_a-char_ref.Po \
 	./$(DEPDIR)/libgumbo_a-error.Po \
 	./$(DEPDIR)/libgumbo_a-parser.Po \
@@ -155,6 +160,19 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 SOURCES = $(libgumbo_a_SOURCES)
 DIST_SOURCES = $(libgumbo_a_SOURCES)
 am__can_run_installinfo = \
@@ -336,13 +354,19 @@ libgumbo_a_SOURCES = \
 				util.c \
 				util.h \
 				vector.c \
-				vector.h
+				vector.h \
+				Document.cpp \
+				Node.cpp \
+				Object.cpp \
+				QueryUtil.cpp \
+				Selection.cpp \
+				Selector.cpp 
 
 include_HEADERS = gumbo.h tag_enum.h
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cpp .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -387,6 +411,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Document.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Node.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QueryUtil.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Selection.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Selector.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgumbo_a-attribute.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgumbo_a-char_ref.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgumbo_a-error.Po@am__quote@ # am--include-marker
@@ -572,6 +602,20 @@ libgumbo_a-vector.obj: vector.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='vector.c' object='libgumbo_a-vector.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgumbo_a_CFLAGS) $(CFLAGS) -c -o libgumbo_a-vector.obj `if test -f 'vector.c'; then $(CYGPATH_W) 'vector.c'; else $(CYGPATH_W) '$(srcdir)/vector.c'; fi`
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -721,7 +765,13 @@ clean: clean-am
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/libgumbo_a-attribute.Po
+		-rm -f ./$(DEPDIR)/Document.Po
+	-rm -f ./$(DEPDIR)/Node.Po
+	-rm -f ./$(DEPDIR)/Object.Po
+	-rm -f ./$(DEPDIR)/QueryUtil.Po
+	-rm -f ./$(DEPDIR)/Selection.Po
+	-rm -f ./$(DEPDIR)/Selector.Po
+	-rm -f ./$(DEPDIR)/libgumbo_a-attribute.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-char_ref.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-error.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-parser.Po
@@ -777,7 +827,13 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/libgumbo_a-attribute.Po
+		-rm -f ./$(DEPDIR)/Document.Po
+	-rm -f ./$(DEPDIR)/Node.Po
+	-rm -f ./$(DEPDIR)/Object.Po
+	-rm -f ./$(DEPDIR)/QueryUtil.Po
+	-rm -f ./$(DEPDIR)/Selection.Po
+	-rm -f ./$(DEPDIR)/Selector.Po
+	-rm -f ./$(DEPDIR)/libgumbo_a-attribute.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-char_ref.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-error.Po
 	-rm -f ./$(DEPDIR)/libgumbo_a-parser.Po

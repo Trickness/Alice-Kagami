@@ -1,4 +1,5 @@
 #include "include/Bangumi/BangumiAdaptor.hpp"
+#include "src/third-party/gumbo-parser/GumboQuery.h"
 
 BangumiAdaptor::BangumiAdaptor()
     :WonderlandAdaptor(){
