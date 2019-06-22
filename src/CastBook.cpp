@@ -6,7 +6,6 @@ using boost::uuids::detail::md5;
 using namespace std;
 
 CastBook::CastBook(const char* BookLocation){
-    DEBUG_MSG("Load Castbook from " << BookLocation);
     int result = sqlite3_open_v2(BookLocation, &(this->mBook),SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,NULL);
     if(result != SQLITE_OK){
         DEBUG_MSG("Failed to open CastBook in [" << BookLocation << "] with sqlite3 error code " << result)

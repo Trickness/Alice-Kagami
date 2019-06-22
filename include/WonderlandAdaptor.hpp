@@ -24,12 +24,13 @@ class WonderlandAdaptor{
         WonderlandAdaptor();
         ~WonderlandAdaptor(); 
         
-        
+        #ifdef THREAD_POOL_SIZE
         size_t GetHTMLAsync( \
             const char* URI, \
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
             Wonderland::NetworkCallback _Callback = nullptr   \
         );
+        #endif
 
         /* Buffer need to be a void ptr, and you should free() it yourself (thread safe)*/
         size_t GetHTMLSync( \
@@ -38,13 +39,15 @@ class WonderlandAdaptor{
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      \
         );
         virtual bool CheckURI(const char* URI) const = 0;
-        virtual std::string ParseContent(void* , size_t) const = 0;
+        virtual std::string ParseContent(const char* ,const void* , size_t) const = 0;
 
+        #ifdef THREAD_POOL_SIZE
         size_t GetParsedAsync(  \
             const char* URI, \
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
             Wonderland::ParserCallback _Callback = nullptr   \
         );
+        #endif
 
         /* Buffer need to be a void ptr, and you should free() it yourself, (thread safe) */
         size_t GetParsedSync( \
@@ -61,7 +64,9 @@ class WonderlandAdaptor{
         void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::ParserCallback _Callback);
     private:
         CastBook *mCastBook;
+    #if THREAD_POOL_SIZE != 0
         ThreadPool mThreadPool;
+    #endif
 }; 
 
 #endif

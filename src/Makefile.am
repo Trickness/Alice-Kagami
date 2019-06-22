@@ -12,5 +12,6 @@ include_HEADERS=\
     ../include/Bangumi/BangumiAdaptor.hpp \
     ../include/Config.hpp \
     ../include/CastBook.hpp third-party/gumbo-parser/gumbo.h \
-    ../include/ThreadPool.hpp
+    ../include/ThreadPool.hpp \
+    third-party/nlohmann/json.hpp
 

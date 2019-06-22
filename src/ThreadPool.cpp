@@ -5,8 +5,9 @@
 ThreadPool::ThreadPool(int init_size)
     :mMutex(),
     mCond(),
-    mIsStarted(false),
-    mInitThreadsSize(init_size){
+    mIsStarted(false)
+    ,mInitThreadsSize(init_size)
+    {
         this->Start();
 }
 

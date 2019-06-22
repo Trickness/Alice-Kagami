@@ -10,7 +10,7 @@ class BangumiAdaptor : public WonderlandAdaptor{
         ~BangumiAdaptor();
         
         bool CheckURI(const char* URI) const;
-        std::string ParseContent(void* , size_t) const;
+        std::string ParseContent(const char*, const void* , size_t) const;
 };
 
 #endif

@@ -13,13 +13,13 @@ size_t writeToBuffer(void *ptr, size_t size, size_t count, void *buffer){
 
 WonderlandAdaptor::WonderlandAdaptor(){
     this->mCastBook = new CastBook();
-    DEBUG_MSG("Wonderland Adaptor Version 0.1 is loaded.");
 }
 
 WonderlandAdaptor::~WonderlandAdaptor(){
     delete this->mCastBook;
 }
 
+#if THREAD_POOL_SIZE != 0
 size_t WonderlandAdaptor::GetHTMLAsync(const char* URI,  \
         Wonderland::CachePolicy CachePolicy,     \
         Wonderland::NetworkCallback _Callback){
@@ -30,6 +30,7 @@ size_t WonderlandAdaptor::GetHTMLAsync(const char* URI,  \
     this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::NetworkTask,this,copyURI,CachePolicy, _Callback));
     return 0;
 }
+#endif
 
 size_t WonderlandAdaptor::GetHTMLSync(const char* URI,  \
         void *&Buffer,      \
@@ -111,7 +112,7 @@ size_t WonderlandAdaptor::GetParsedSync( \
     CHECK_PARAM_PTR(URI,0);
     size_t bytes = this->GetHTMLSync(URI, Buffer, Policy);
     if(bytes){
-        std::string result = this->ParseContent(Buffer, bytes);
+        std::string result = this->ParseContent(URI, Buffer, bytes);
         if(result.length() != 0){
             bytes = result.length();
             Buffer = (char*) malloc(bytes+1);
@@ -124,6 +125,7 @@ size_t WonderlandAdaptor::GetParsedSync( \
     return bytes;
 }
 
+#if THREAD_POOL_SIZE != 0
 size_t WonderlandAdaptor::GetParsedAsync(const char* URI,  \
         Wonderland::CachePolicy CachePolicy,     \
         Wonderland::ParserCallback _Callback){
@@ -134,6 +136,7 @@ size_t WonderlandAdaptor::GetParsedAsync(const char* URI,  \
     this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::ParseTask,this,copyURI,CachePolicy,_Callback));
     return 0;
 }
+#endif
 
 void WonderlandAdaptor::ParseTask(const char* URI, Wonderland::CachePolicy Policy, Wonderland::ParserCallback _Callback){
     void* Buffer = nullptr;

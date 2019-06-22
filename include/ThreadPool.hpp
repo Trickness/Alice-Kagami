@@ -13,7 +13,11 @@ class ThreadPool{
     public:
         typedef std::function<void()> TaskT;
 
-        ThreadPool(int init_size = 3);
+    #ifdef THREAD_POOL_SIZE
+        ThreadPool(int init_size = THREAD_POOL_SIZE);
+    #else
+        ThreadPool(int init_size = 0);
+    #endif
         ~ThreadPool();
 
         void Stop();

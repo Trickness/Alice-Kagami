@@ -2,15 +2,18 @@
 #define _ALICE_NO_KAGAMI_
 
 #include <iostream>
+#include <list>
 #include "Config.hpp"
-#include "Bangumi/BangumiAdaptor.hpp"
+#include "WonderlandAdaptor.hpp"
+
 
 class AliceNoKagami{
     public:
         AliceNoKagami();
         ~AliceNoKagami();
+        std::string GetParsedContentSync(const char* URI, Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE);
     private:
-        BangumiAdaptor *mAdaptor;
-};
+        std::list<WonderlandAdaptor*> mAdaptors;
+};  
 
 #endif
