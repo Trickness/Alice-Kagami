@@ -13,19 +13,6 @@ AliceNoKagami::AliceNoKagami(){
 
     curl_global_init(CURL_GLOBAL_DEFAULT);      // should only init once
     this->mAdaptors.push_back(new BangumiAdaptor());
-    /* 
-    this->mAdaptor = new BangumiAdaptor();
-    void* Buffer = nullptr;
-    size_t bytes = this->mAdaptor->GetParsedSync("https://bgm.tv/subject/276",  \
-                                    Buffer, \
-                                    Wonderland::CachePolicy::FIRST_FROM_CACHE   \
-                                    );
-                                    //std::bind(testCallback,1,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3));
-    if(Buffer != nullptr){
-        DEBUG_MSG((char*)Buffer);
-        free(Buffer);
-    } */
-    
     DEBUG_MSG("Alice's Kagami Version 0.1 loaded");
 }
 
@@ -51,4 +38,38 @@ std::string AliceNoKagami::GetParsedContentSync(const char* URI, Wonderland::Cac
     return "";
 }
 
+void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::ParserCallback _Callback){
+    for(auto adaptor:this->mAdaptors){
+        if(adaptor->CheckURI(URI)){
+            adaptor->GetParsedAsync(URI, Policy, _Callback);
+            return;
+        }
+    }
+    DEBUG_MSG("Warning: No Adaptor found for [" << URI << "]");
+}
+
+size_t AliceNoKagami::GetHTMLSync(const char* URI, void *&Buffer,  Wonderland::CachePolicy Policy){
+    for(auto adaptor:this->mAdaptors){
+        if(adaptor->CheckURI(URI)){
+            size_t bytes = adaptor->GetHTMLSync(URI,Buffer, Policy);
+            if(bytes == 0){
+                DEBUG_MSG("Failed to GET URI [" << URI << "]");
+                return 0;
+            }
+            return bytes;
+        }
+    }
+    return 0;
+}
+
+void AliceNoKagami::GetHTMLAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
+    for(auto adaptor:this->mAdaptors){
+        if(adaptor->CheckURI(URI)){
+            adaptor->GetHTMLAsync(URI, Policy, _Callback);
+            return;
+        }
+    }
+    DEBUG_MSG("Warning: No Adaptor found for [" << URI << "]");
+    return ;
+}
 

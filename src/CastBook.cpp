@@ -135,11 +135,18 @@ string CastBook::GetRosterCustomInfo(const char* Domain){
 }
 
 void CastBook::SetRosterCookies(const char* Domain, const char* Cookies){
-
+    sqlite3_stmt *stmt;
+    char sql[9216];
+    memset(sql, 0, 9216);
+    sprintf(sql, "INSERT OR REPLACE INTO Roster(DOMAIN,COOKIES) VALUES ('%s',?)",Domain);
+    sqlite3_prepare(this->mBook, sql, strlen(sql),&stmt,nullptr);
+    sqlite3_bind_text(stmt,1,Cookies,strlen(Cookies),NULL);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
 }
 
 void CastBook::AddRosterCookies(const char* Domain, const char* Cookies){
-
+    // not in use
 }
 
 

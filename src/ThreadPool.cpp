@@ -70,7 +70,6 @@ ThreadPool::TaskT ThreadPool::Take(){
         this->mTasks.pop_front();
         
     }
-    DEBUG_MSG("Deque Size --> " << this->mTasks.size());
     DEBUG_MSG(std::this_thread::get_id() << "::Wakeup");
     return task;
 }

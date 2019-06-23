@@ -25,7 +25,7 @@ class WonderlandAdaptor{
         ~WonderlandAdaptor(); 
         
         #ifdef THREAD_POOL_SIZE
-        size_t GetHTMLAsync( \
+        void GetHTMLAsync( \
             const char* URI, \
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
             Wonderland::NetworkCallback _Callback = nullptr   \
@@ -42,7 +42,7 @@ class WonderlandAdaptor{
         virtual std::string ParseContent(const char* ,const void* , size_t) const = 0;
 
         #ifdef THREAD_POOL_SIZE
-        size_t GetParsedAsync(  \
+        void GetParsedAsync(  \
             const char* URI, \
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
             Wonderland::ParserCallback _Callback = nullptr   \
@@ -57,10 +57,13 @@ class WonderlandAdaptor{
         );
         void   CacheResource(const char* URI, const void *Buffer, size_t Bytes);
 
+        static std::string GetDomainFromURI(const char* URI);
+        static std::vector<std::string> split(std::string str, std::string pattern);
+
     protected:
         WonderlandAdaptor(const WonderlandAdaptor &);
         void NetworkTask(const char*URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
-        Wonderland::Status NetworkFetch(const char* URI, void *&Buffer, size_t &bytes);
+        Wonderland::Status NetworkFetch(const char* URI,std::string &, void *&Buffer, size_t &bytes);
         void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::ParserCallback _Callback);
     private:
         CastBook *mCastBook;
