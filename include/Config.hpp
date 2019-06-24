@@ -1,5 +1,5 @@
-#ifndef _CONFIG_HPP_
-#define _CONFIG_HPP_
+#ifndef _CONFIG_HPP__
+#define _CONFIG_HPP__
 #include <cstring>
 #include <iostream>
 
