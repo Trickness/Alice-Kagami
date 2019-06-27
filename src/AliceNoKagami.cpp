@@ -32,13 +32,15 @@ std::string AliceNoKagami::GetParsedContentSync(const char* URI, Wonderland::Cac
                 DEBUG_MSG("Failed to parse URI [" << URI << "]");
                 return "";
             }
-            return std::string((char*)Buffer);
+            string return_var((char*)Buffer,bytes);
+            free(Buffer);
+            return return_var;
         }
     }
     return "";
 }
 
-void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::ParserCallback _Callback){
+void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     for(auto adaptor:this->mAdaptors){
         if(adaptor->CheckURI(URI)){
             adaptor->GetParsedAsync(URI, Policy, _Callback);
@@ -48,15 +50,18 @@ void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePoli
     DEBUG_MSG("Warning: No Adaptor found for [" << URI << "]");
 }
 
-size_t AliceNoKagami::GetHTMLSync(const char* URI, void *&Buffer,  Wonderland::CachePolicy Policy){
+string AliceNoKagami::GetHTMLSync(const char* URI,  Wonderland::CachePolicy Policy){
     for(auto adaptor:this->mAdaptors){
         if(adaptor->CheckURI(URI)){
+            void* Buffer = nullptr;
             size_t bytes = adaptor->GetHTMLSync(URI,Buffer, Policy);
             if(bytes == 0){
                 DEBUG_MSG("Failed to GET URI [" << URI << "]");
-                return 0;
+                return "";
             }
-            return bytes;
+            string return_var((char*)Buffer,bytes);
+            free(Buffer);
+            return return_var;
         }
     }
     return 0;

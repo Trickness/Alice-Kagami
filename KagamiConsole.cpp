@@ -18,6 +18,10 @@ void BuildHelp(){
     Helps.push_back(pair<string, string>("get","get - 获取URI指向的数据\n\nUSAGE: get <format> <uri>\n\n  format : 数据的返回格式\n            json -- 以JSON格式返回数据（需要Adaptor支持）\n            html -- 返回HTML数据\n     uri : 目标网址，例如 https://bgm.tv/\n\nEXAMPLE:\n  get json https://bgm.tv/\n\n"));
 }
 
+#ifdef __linux__
+#define stricmp strcasecmp
+#endif
+
 int main(){
 
     BuildHelp();
@@ -35,19 +39,22 @@ int main(){
         "get", {"format", "uri"},
         [](std::ostream& out, const string& format, const string& uri){
             out << "GET " << uri << " with format "  << format << endl;
+            if(stricmp(format.c_str(),"json") == 0){
+                out << Alice->GetParsedContentSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE) << endl;
+            }else if(stricmp(format.c_str(),"html") == 0){
+                out << Alice->GetHTMLSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE) << endl;
+            }else{
+                out << "get: Unknown format [" << format << "]" << endl;
+            }
         },
-        "Request GET"
+        "Send a GET request"
     );
     rootMenu->Insert(
         "help",{"command"},
         [](std::ostream& out, const string& command){
             out <<  endl << "    Alice's Kagami help page" << endl  <<"---------------------------------" << endl;
             for(auto item:Helps){
-                #ifdef __linux__
-                if(strcasecmp(item.first.c_str(),command.c_str()) == 0){
-                #else
                 if(stricmp(item.first.c_str(),command.c_str()) == 0){
-                #endif
                     out << item.second;
                     return;
                 }

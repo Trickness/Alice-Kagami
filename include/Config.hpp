@@ -15,6 +15,6 @@
 #define CHECK_PARAM_PTR(PARAM,RETURN)  \
     if (PARAM == nullptr){ DEBUG_MSG(__FUNCTION__ << " : " << __LINE__ << ": Null param ptr"); return RETURN; }
 
-#define THREAD_POOL_SIZE 3      // 0 to disable threadpool
+#define THREAD_POOL_SIZE 0      // 0 to disable threadpool
 
 #endif

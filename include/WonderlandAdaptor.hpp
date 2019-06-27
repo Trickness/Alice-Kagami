@@ -14,9 +14,8 @@
 namespace Wonderland{
     enum CachePolicy{ONLY_FROM_CACHE, FIRST_FROM_CACHE, NEVER_FROM_CACHE};    
     enum Status{SUCCESS, FAILED};
-    //      return_status              data     data_size     // data will be free() after this function return
-    typedef std::function<void(Status, void* data, size_t)> NetworkCallback; 
-    typedef std::function<void(Status, void* data, size_t)> ParserCallback;
+    //      return_status              data     
+    typedef std::function<void(Status, std::string)> NetworkCallback; 
 }
 
 class WonderlandAdaptor{
@@ -24,52 +23,75 @@ class WonderlandAdaptor{
         WonderlandAdaptor();
         ~WonderlandAdaptor(); 
         
-        #ifdef THREAD_POOL_SIZE
-        void GetHTMLAsync( \
-            const char* URI, \
-            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
-            Wonderland::NetworkCallback _Callback = nullptr   \
+        void GetHTMLAsync( 
+            const char* URI, 
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    
+            Wonderland::NetworkCallback _Callback = nullptr   
         );
-        #endif
 
         /* Buffer need to be a void ptr, and you should free() it yourself (thread safe)*/
-        size_t GetHTMLSync( \
-            const char* URI, \
-            void *&Buffer,  \
-            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      \
+        size_t GetHTMLSync( 
+            const char* URI, 
+            void *&Buffer,  
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      
         );
-        virtual bool CheckURI(const char* URI) const = 0;
-        virtual std::string ParseContent(const char* ,const void* , size_t) const = 0;
 
-        #ifdef THREAD_POOL_SIZE
-        void GetParsedAsync(  \
-            const char* URI, \
-            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    \
-            Wonderland::ParserCallback _Callback = nullptr   \
+        void GetParsedAsync(  
+            const char* URI, 
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    
+            Wonderland::NetworkCallback _Callback = nullptr   
         );
-        #endif
 
         /* Buffer need to be a void ptr, and you should free() it yourself, (thread safe) */
-        size_t GetParsedSync( \
-            const char* URI, \
-            void *&Buffer,  \
-            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      \
+        size_t GetParsedSync( 
+            std::string URI, 
+            void *&Buffer,  
+            Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      
         );
+
+        bool LoginSync(
+            std::string Username,
+            std::string Password
+        ){return this->Login(Username,Password);}
+
+        void LoginAsync(std::string Username, std::string Password, Wonderland::NetworkCallback _Callback = nullptr){
+            this->mThreadPool.AddTask(std::bind([](WonderlandAdaptor *&parent,std::string Username, std::string Password, Wonderland::NetworkCallback __Callback){
+                if(parent->LoginSync(Username, Password)){__Callback(Wonderland::Status::SUCCESS, std::string("{\"login\": \"success\" }"));
+                }else{__Callback(Wonderland::Status::FAILED, std::string("{\"login\": \"failed\" }"));}},this,Username,Password, _Callback));
+        }
+
+        bool CheckLoginStatusSync() const{
+            return false;
+        };
+
+        void CheckLoginStatusAsync(Wonderland::NetworkCallback _Callback){
+            this->mThreadPool.AddTask(std::bind([](WonderlandAdaptor *&parent, Wonderland::NetworkCallback __Callback){
+                if(parent->CheckLoginStatusSync()){__Callback(Wonderland::Status::SUCCESS, std::string("{\"login_status\": true }"));
+                }else{__Callback(Wonderland::Status::FAILED, std::string("{\"login_status\": false }"));}},this, _Callback));}
+
         void   CacheResource(const char* URI, const void *Buffer, size_t Bytes);
 
         static std::string GetDomainFromURI(const char* URI);
         static std::vector<std::string> split(std::string str, std::string pattern);
 
+
+        virtual bool CheckURI(const std::string &URI) const = 0;
+
+
     protected:
         WonderlandAdaptor(const WonderlandAdaptor &);
-        void NetworkTask(const char*URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
+        void NetworkTask(char*URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
         Wonderland::Status NetworkFetch(const char* URI,std::string &, void *&Buffer, size_t &bytes);
-        void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::ParserCallback _Callback);
+        void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
+
+        virtual std::string ParseContent(std::string ,const std::string &) const = 0;
+        
+        virtual bool Login(const std::string ,const std::string) const  {DEBUG_MSG("No Method Implemented");return false;}
+        virtual bool Logout() const                                     {DEBUG_MSG("No Method Implemented");return false;}
+        virtual bool CheckLoginStatus() const                           {DEBUG_MSG("No Method Implemented");return false;}
     private:
         CastBook *mCastBook;
-    #if THREAD_POOL_SIZE != 0
         ThreadPool mThreadPool;
-    #endif
 }; 
 
 #endif

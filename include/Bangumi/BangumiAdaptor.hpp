@@ -9,8 +9,12 @@ class BangumiAdaptor : public WonderlandAdaptor{
         BangumiAdaptor();
         ~BangumiAdaptor();
         
-        bool CheckURI(const char* URI) const;
-        std::string ParseContent(const char*, const void* , size_t) const;
+        bool CheckURI(const std::string &URI) const;
+    protected:
+        std::string ParseContent(std::string URI, const std::string &Data) const;
+        bool Login(const std::string ,const std::string) const;
+        bool Logout() const;
+        bool CheckLoginStatus() const;
 };
 
 #endif

@@ -63,7 +63,7 @@ size_t WonderlandAdaptor::GetHTMLSync(const char* URI,  \
 }
 
 
-void WonderlandAdaptor::NetworkTask(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
+void WonderlandAdaptor::NetworkTask(char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     void* Buffer = nullptr;
     size_t bytes = this->GetHTMLSync(URI, Buffer, Policy);
     Wonderland::Status status ;
@@ -72,10 +72,13 @@ void WonderlandAdaptor::NetworkTask(const char* URI, Wonderland::CachePolicy Pol
     else
         status = Wonderland::Status::FAILED;
     delete URI;
-    if(_Callback != nullptr)
-        _Callback(status,Buffer,bytes);
+    if(_Callback != nullptr){
+        string strVar((char*)Buffer,bytes);
+        _Callback(status,strVar);
+    }
     if(Buffer != nullptr)
         free(Buffer);
+    free(URI);
 }
 
 
@@ -135,13 +138,14 @@ void WonderlandAdaptor::CacheResource(const char* URI, const void *Buffer, size_
 }
 
 size_t WonderlandAdaptor::GetParsedSync( \
-            const char* URI, \
+            std::string URI, \
             void *&Buffer,  \
             Wonderland::CachePolicy Policy){
-    CHECK_PARAM_PTR(URI,0);
-    size_t bytes = this->GetHTMLSync(URI, Buffer, Policy);
+    size_t bytes = this->GetHTMLSync(URI.c_str(), Buffer, Policy);
     if(bytes){
-        std::string result = this->ParseContent(URI, Buffer, bytes);
+        string result((char*)Buffer);
+        free(Buffer);
+        result = this->ParseContent(URI, result);
         if(result.length() != 0){
             bytes = result.length();
             Buffer = (char*) malloc(bytes+1);
@@ -156,7 +160,7 @@ size_t WonderlandAdaptor::GetParsedSync( \
 
 void WonderlandAdaptor::GetParsedAsync(const char* URI,  \
         Wonderland::CachePolicy CachePolicy,     \
-        Wonderland::ParserCallback _Callback){
+        Wonderland::NetworkCallback _Callback){
 #if THREAD_POOL_SIZE != 0
     CHECK_PARAM_PTR(URI,)
     char* copyURI = (char*)malloc(strlen(URI)+1);
@@ -168,7 +172,7 @@ void WonderlandAdaptor::GetParsedAsync(const char* URI,  \
 }
 
 
-void WonderlandAdaptor::ParseTask(const char* URI, Wonderland::CachePolicy Policy, Wonderland::ParserCallback _Callback){
+void WonderlandAdaptor::ParseTask(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     void* Buffer = nullptr;
     size_t bytes = this->GetParsedSync(URI,Buffer, Policy);
     Wonderland::Status status ;
@@ -177,8 +181,10 @@ void WonderlandAdaptor::ParseTask(const char* URI, Wonderland::CachePolicy Polic
     else
         status = Wonderland::Status::FAILED;
     delete URI;
-    if(_Callback != nullptr)
-        _Callback(status,Buffer,bytes);
+    if(_Callback != nullptr){
+        string strVar((char*)Buffer,bytes);
+        _Callback(status,strVar);
+    }
     if(Buffer != nullptr)
         free(Buffer);
     delete URI;

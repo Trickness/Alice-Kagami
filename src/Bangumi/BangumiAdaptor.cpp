@@ -18,11 +18,8 @@ BangumiAdaptor::~BangumiAdaptor(){
 
 }
 
-bool BangumiAdaptor::CheckURI(const char* URI) const {
-    CHECK_PARAM_PTR(URI,false);
-    string uri(URI);
-    uri = uri.substr(uri.find_first_of("://")+3);
-    auto splited = split(uri, "/");
+bool BangumiAdaptor::CheckURI(const string &URI) const {
+    auto splited = split(URI.substr(URI.find_first_of("://")+3), "/");
     if(splited.size() == 0){
         DEBUG_MSG("Wrong URI param [" << URI << "]");
         return false;
@@ -33,15 +30,10 @@ bool BangumiAdaptor::CheckURI(const char* URI) const {
     return false;
 }
 
-std::string BangumiAdaptor::ParseContent(const char* URI, const void* Data, size_t Bytes) const{
-    if(Bytes == 0)
-        return "";
-    CHECK_PARAM_PTR(URI,"");
-    CHECK_PARAM_PTR(Data,"");
-    std::string uri(URI);
-    std::string html((char*)Data);
-    uri = uri.substr(uri.find_first_of("://")+3);
-    std::vector<std::string> splited = split(uri,"/");
+std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
+    if(Data.empty())    return "";
+    URI = URI.substr(URI.find_first_of("://")+3);
+    std::vector<std::string> splited = split(URI,"/");
     
     if(splited.size() == 0){
         return "";
@@ -50,16 +42,29 @@ std::string BangumiAdaptor::ParseContent(const char* URI, const void* Data, size
     json j;
     std::string return_str = "";
     CDocument doc;
-    doc.parse(html);
+    doc.parse(Data);
     if(splited.size() == 1){        // homepage
-
+        return "";
     }else{
         string t_str = splited[1];
         if(t_str == "subject"){     // subject page
             CNode node = doc.find("h1.nameSingle").nodeAt(0).find("a").nodeAt(0);
             j["title"] = node.text();
         }else if(t_str == "user"){  // user page
+            return "";
+        }else{
+            return "";
         }
     }
     return j.dump();
+}
+
+bool BangumiAdaptor::Login(const std::string Username ,const std::string Password) const{
+    return false;
+}
+bool BangumiAdaptor::Logout() const{
+    return false;
+}
+bool BangumiAdaptor::CheckLoginStatus() const{
+    return false;
 }
