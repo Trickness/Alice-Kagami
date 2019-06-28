@@ -4,6 +4,8 @@
 
 #include "include/WonderlandAdaptor.hpp"
 
+#define _BGM_PROTOCOL_ "https:"
+
 class BangumiAdaptor : public WonderlandAdaptor{
     public:
         BangumiAdaptor();
