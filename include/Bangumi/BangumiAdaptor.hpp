@@ -12,9 +12,6 @@ class BangumiAdaptor : public WonderlandAdaptor{
         bool CheckURI(const std::string &URI) const;
     protected:
         std::string ParseContent(std::string URI, const std::string &Data) const;
-        bool Login(const std::string ,const std::string) const;
-        bool Logout() const;
-        bool CheckLoginStatus() const;
 };
 
 #endif

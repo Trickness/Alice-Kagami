@@ -49,17 +49,6 @@ class WonderlandAdaptor{
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      
         );
 
-        bool LoginSync(
-            std::string Username,
-            std::string Password
-        ){return this->Login(Username,Password);}
-
-        void LoginAsync(std::string Username, std::string Password, Wonderland::NetworkCallback _Callback = nullptr){
-            this->mThreadPool.AddTask(std::bind([](WonderlandAdaptor *&parent,std::string Username, std::string Password, Wonderland::NetworkCallback __Callback){
-                if(parent->LoginSync(Username, Password)){__Callback(Wonderland::Status::SUCCESS, std::string("{\"login\": \"success\" }"));
-                }else{__Callback(Wonderland::Status::FAILED, std::string("{\"login\": \"failed\" }"));}},this,Username,Password, _Callback));
-        }
-
         bool CheckLoginStatusSync() const{
             return false;
         };
@@ -85,10 +74,6 @@ class WonderlandAdaptor{
         void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
 
         virtual std::string ParseContent(std::string ,const std::string &) const = 0;
-        
-        virtual bool Login(const std::string ,const std::string) const  {DEBUG_MSG("No Method Implemented");return false;}
-        virtual bool Logout() const                                     {DEBUG_MSG("No Method Implemented");return false;}
-        virtual bool CheckLoginStatus() const                           {DEBUG_MSG("No Method Implemented");return false;}
     private:
         CastBook *mCastBook;
         ThreadPool mThreadPool;

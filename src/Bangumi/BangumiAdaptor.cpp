@@ -58,13 +58,3 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
     }
     return j.dump();
 }
-
-bool BangumiAdaptor::Login(const std::string Username ,const std::string Password) const{
-    return false;
-}
-bool BangumiAdaptor::Logout() const{
-    return false;
-}
-bool BangumiAdaptor::CheckLoginStatus() const{
-    return false;
-}
