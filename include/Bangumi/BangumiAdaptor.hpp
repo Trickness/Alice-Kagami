@@ -5,6 +5,7 @@
 #include "include/WonderlandAdaptor.hpp"
 
 #define _BGM_PROTOCOL_ "https:"
+#define _BGM_DOMAIN_   "bgm.tv"
 
 class BangumiAdaptor : public WonderlandAdaptor{
     public:

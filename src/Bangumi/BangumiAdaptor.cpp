@@ -49,7 +49,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
         string t_str = splited[1];
         if(t_str == "subject"){     // subject page
 
-            {       // subject title
+            {       // title
                 CNode title = doc.find("h1.nameSingle").nodeAt(0) ;
                 j["title"] = title.find("a").nodeAt(0).text();          // get subject name
                 if(title.find("small").nodeNum() == 1)
@@ -59,7 +59,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 j["type"] = doc.find("a.focus").nodeAt(0).attribute("href").substr(1);  // subject type, eg. real, game, anime...
             }
             
-            {       // subject image 
+            {       // image 
                 string imageURI_medium = string(_BGM_PROTOCOL_).append(doc.find("img.cover").nodeAt(0).attribute("data-cfsrc"));
                 CNode img = doc.find("img.cover").nodeAt(0);
                 string imageURI_small = imageURI_medium;
@@ -72,6 +72,44 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     {"small",imageURI_small}
                 };
             }
+
+            {       // info box
+                CSelection infobox = doc.find("#infobox").nodeAt(0).find("li");
+                for (size_t i = 0; i < infobox.nodeNum(); ++i){
+                    CNode item = infobox.nodeAt(i);
+                    string info = item.text();
+                    int loc = info.find_first_of(':');
+                    std::string key = info.substr(0,loc);
+                    
+                    CSelection links = item.find("a");
+                    json link_j = json::object();
+                    for(size_t j = 0; j < links.nodeNum(); ++j){
+                        CNode links_item = links.nodeAt(j);    
+                        link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
+                    }
+                    if(j["infobox"][key] != nullptr){
+                        j["infobox"][key]["text"] =  string(j["infobox"][key]["text"]).append("\n").append(info.substr(loc+2));
+                        link_j.merge_patch(j["infobox"][key]["links"]);
+                        j["infobox"][key]["links"] = link_j;
+                    }else{
+                        j["infobox"][key] = {
+                            {"text",info.substr(loc+2)},     // skip ':' and space
+                            {"links",link_j}
+                        };
+                    }
+                    
+                }
+            }
+
+            {       // recommend list 
+
+            }
+
+            {       // playing list
+
+            }
+
+        }else if(t_str == "user"){  // user p
 
         }else if(t_str == "user"){  // user page
             return "";
