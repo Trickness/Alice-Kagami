@@ -90,27 +90,82 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     if(j["infobox"][key] != nullptr){
                         j["infobox"][key]["text"] =  string(j["infobox"][key]["text"]).append("\n").append(info.substr(loc+2));
                         link_j.merge_patch(j["infobox"][key]["links"]);
-                        j["infobox"][key]["links"] = link_j;
                     }else{
-                        j["infobox"][key] = {
-                            {"text",info.substr(loc+2)},     // skip ':' and space
-                            {"links",link_j}
-                        };
+                        j["infobox"][key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
                     }
+                    j["infobox"][key]["links"] = link_j;
                     
                 }
             }
 
             {       // recommend list 
+                CSelection recommend_list = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
+                for(size_t i = 0; i < recommend_list.nodeNum(); ++i){
+                    CNode item = recommend_list.nodeAt(i);
+                    string avatar_header = item.find("span.avatarNeue").nodeAt(0).attribute("style");
+                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
+                    if(avatar_header.find_first_of('?') == string::npos){
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
+                    }else{
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
+                    }                    avatar_header[23] = 'l';        // change to size large
+                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);
+                    
+                    string avatar_link   = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(item.find("span.avatarNeue").nodeAt(0).parent().attribute("href"));
 
+                    CNode r_list_item = item.find("div.innerWithAvatar").nodeAt(0).find("a.avatar").nodeAt(0);
+                    string list_link     = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(r_list_item.attribute("href"));
+                    string list_title    = r_list_item.text();
+
+                    string avatar        = item.find("small.grey").nodeAt(0).find("a.avatar").nodeAt(0).text();
+
+                    j["recommend_list"][list_title] = {
+                        {"link",list_link},
+                        {"avatar",{
+                            {"name",avatar},
+                            {"link",avatar_link},
+                            {"header",avatar_header}
+                        }}
+                    };
+                }
             }
 
-            {       // playing list
+            {       // Collection list
+                CSelection collection_list = doc.find("#subjectPanelCollect").nodeAt(0).find("li.clearit");
+                for(size_t i = 0; i < collection_list.nodeNum(); ++i){
+                    CNode item = collection_list.nodeAt(i);
+                    string avatar_header = item.find("span.avatarNeue").nodeAt(0).attribute("style");
+                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
+                    if(avatar_header.find_first_of('?') == string::npos){
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
+                    }else{
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
+                    }
+                    avatar_header[23] = 'l';        // change to size large
+                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);
+                    
+                    string avatar_link   = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(item.find("span.avatarNeue").nodeAt(0).parent().attribute("href"));
 
+                    CNode avatar_node = item.find("div.innerWithAvatar").nodeAt(0);
+                    string avatar = avatar_node.find("a.avatar").nodeAt(0).text();
+
+                    if(avatar_node.find("span.starsinfo").nodeNum() != 0){
+                        DEBUG_MSG(avatar_node.find("span.starsinfo").nodeAt(0).attribute("class"));
+                    }
+
+                    string collection_status = avatar_node.find("small.grey").nodeAt(0).text();
+
+                    j["collection_list"][avatar] = {
+                        {"link", avatar_link},
+                        {"header", avatar_header},
+                        {"collection_status", collection_status}
+                    };
+                }
             }
 
-        }else if(t_str == "user"){  // user p
+            {       // collection status
 
+            }
         }else if(t_str == "user"){  // user page
             return "";
         }else{
