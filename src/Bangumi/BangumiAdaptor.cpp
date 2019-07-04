@@ -48,15 +48,20 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
     }else{
         string t_str = splited[1];
         if(t_str == "subject"){     // subject page
-
+            string subject_id = "";
+            string subject_name = "";
+            string subject_type = "";
             {       // title
                 CNode title = doc.find("h1.nameSingle").nodeAt(0) ;
-                j["title"] = title.find("a").nodeAt(0).text();          // get subject name
+                subject_name = title.find("a").nodeAt(0).text();          // get subject name
+                j["title"] = subject_name;
+                subject_id = title.find("a").nodeAt(0).attribute("href").substr(strlen("/subject/"));
                 if(title.find("small").nodeNum() == 1)
                     j["subtype"] = title.find("small").nodeAt(0).text();    // ova , tv or others
                 else
                     j["subtype"] = "";
-                j["type"] = doc.find("a.focus").nodeAt(0).attribute("href").substr(1);  // subject type, eg. real, game, anime...
+                subject_type = doc.find("a.focus").nodeAt(0).attribute("href").substr(1);  // subject type, eg. real, game, anime...
+                j["type"] = subject_type;
             }
             
             {       // image 
@@ -149,10 +154,6 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     CNode avatar_node = item.find("div.innerWithAvatar").nodeAt(0);
                     string avatar = avatar_node.find("a.avatar").nodeAt(0).text();
 
-                    if(avatar_node.find("span.starsinfo").nodeNum() != 0){
-                        DEBUG_MSG(avatar_node.find("span.starsinfo").nodeAt(0).attribute("class"));
-                    }
-
                     string collection_status = avatar_node.find("small.grey").nodeAt(0).text();
 
                     j["collection_list"][avatar] = {
@@ -160,11 +161,26 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         {"header", avatar_header},
                         {"collection_status", collection_status}
                     };
+
+                    if(avatar_node.find("span.starsinfo").nodeNum() != 0){
+                        string star_info = avatar_node.find("span.starsinfo").nodeAt(0).attribute("class");
+                        star_info = star_info.substr(0, star_info.find_first_of(' '));
+                        int stars = atoi(star_info.substr(strlen("sstars")).c_str());
+                        j["collection_list"][avatar]["stars"] = stars;
+                    }
                 }
             }
 
             {       // collection status
-
+                CSelection collection_status = doc.find("#subjectPanelCollect").nodeAt(0).find("span.tip_i").nodeAt(0).find("a.l");
+                for(size_t i = 0; i < collection_status.nodeNum(); ++i){
+                    CNode item = collection_status.nodeAt(i);
+                    string txt = item.text();
+                    size_t loc = txt.find_first_of("人");
+                    int num = atoi(txt.substr(0,loc).c_str());
+                    string status = txt.substr(loc+strlen("人"));
+                    j["collection_status"][status] = num;
+                }
             }
         }else if(t_str == "user"){  // user page
             return "";
