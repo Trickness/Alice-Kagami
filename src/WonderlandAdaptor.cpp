@@ -71,7 +71,6 @@ void WonderlandAdaptor::NetworkTask(char* URI, Wonderland::CachePolicy Policy, W
         status = Wonderland::Status::SUCCESS;
     else
         status = Wonderland::Status::FAILED;
-    delete URI;
     if(_Callback != nullptr){
         string strVar((char*)Buffer,bytes);
         _Callback(status,strVar);

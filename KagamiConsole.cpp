@@ -46,7 +46,7 @@ int main(){
         [](std::ostream& out, const string& format, const string& uri){
             out << "GET " << uri << " with format "  << format << endl;
             if(stricmp(format.c_str(),"json") == 0){
-                out << std::setw(4) << json::parse(Alice->GetParsedContentSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE))["collection_status"] << endl;
+                out << std::setw(4) << json::parse(Alice->GetParsedContentSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE))["ep_list"] << endl;
             }else if(stricmp(format.c_str(),"html") == 0){
                 out << Alice->GetHTMLSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE) << endl;
             }else{

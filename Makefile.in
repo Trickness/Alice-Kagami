@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-noinst_PROGRAMS = KagamiConsole$(EXEEXT)
+noinst_PROGRAMS = KagamiConsole$(EXEEXT) DebugConsole$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,6 +101,10 @@ CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
+am_DebugConsole_OBJECTS = DebugConsole.$(OBJEXT)
+DebugConsole_OBJECTS = $(am_DebugConsole_OBJECTS)
+DebugConsole_DEPENDENCIES = src/libKagami.a \
+	src/third-party/gumbo-parser/libgumbo.a
 am_KagamiConsole_OBJECTS = KagamiConsole.$(OBJEXT)
 KagamiConsole_OBJECTS = $(am_KagamiConsole_OBJECTS)
 KagamiConsole_DEPENDENCIES = src/libKagami.a \
@@ -120,7 +124,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/KagamiConsole.Po
+am__depfiles_remade = ./$(DEPDIR)/DebugConsole.Po \
+	./$(DEPDIR)/KagamiConsole.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -135,8 +140,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(KagamiConsole_SOURCES)
-DIST_SOURCES = $(KagamiConsole_SOURCES)
+SOURCES = $(DebugConsole_SOURCES) $(KagamiConsole_SOURCES)
+DIST_SOURCES = $(DebugConsole_SOURCES) $(KagamiConsole_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -324,6 +329,9 @@ SUBDIRS = src src/third-party/gumbo-parser
 KagamiConsole_LDADD = src/libKagami.a src/third-party/gumbo-parser/libgumbo.a
 KagamiConsole_LIBS = lpthread -lsqlite3 -lcurl -lboost_system
 KagamiConsole_SOURCES = KagamiConsole.cpp
+DebugConsole_LDADD = src/libKagami.a src/third-party/gumbo-parser/libgumbo.a
+DebugConsole_LIBS = lpthread -lsqlite3 -lcurl -lboost_system
+DebugConsole_SOURCES = DebugConsole.cpp
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -381,6 +389,10 @@ distclean-hdr:
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
 
+DebugConsole$(EXEEXT): $(DebugConsole_OBJECTS) $(DebugConsole_DEPENDENCIES) $(EXTRA_DebugConsole_DEPENDENCIES) 
+	@rm -f DebugConsole$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(DebugConsole_OBJECTS) $(DebugConsole_LDADD) $(LIBS)
+
 KagamiConsole$(EXEEXT): $(KagamiConsole_OBJECTS) $(KagamiConsole_DEPENDENCIES) $(EXTRA_KagamiConsole_DEPENDENCIES) 
 	@rm -f KagamiConsole$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(KagamiConsole_OBJECTS) $(KagamiConsole_LDADD) $(LIBS)
@@ -391,6 +403,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DebugConsole.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/KagamiConsole.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -751,7 +764,8 @@ clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f ./$(DEPDIR)/KagamiConsole.Po
+		-rm -f ./$(DEPDIR)/DebugConsole.Po
+	-rm -f ./$(DEPDIR)/KagamiConsole.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -799,7 +813,8 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f ./$(DEPDIR)/KagamiConsole.Po
+		-rm -f ./$(DEPDIR)/DebugConsole.Po
+	-rm -f ./$(DEPDIR)/KagamiConsole.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
