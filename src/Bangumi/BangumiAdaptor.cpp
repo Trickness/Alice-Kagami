@@ -195,9 +195,12 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     }else{
                         item = item.find("a").nodeAt(0);
                         string ep_index = item.ownText();
+                        j["ep_list"][Section][ep_index]["air"] = item.attribute("class").substr(strlen("load-epinfo epBtn"));
+
                         j["ep_list"][Section][ep_index]["title"]  = item.attribute("title");
                         j["ep_list"][Section][ep_index]["uri"]    = string(_BGM_PROTOCOL_).append(_BGM_DOMAIN_).append(item.attribute("href"));
                         j["ep_list"][Section][ep_index]["id"]     = item.attribute("id").substr(strlen("prg_"));
+
                         string infobox = ep_info.find(string("#prginfo_").append(item.attribute("id").substr(strlen("prg_")))).nodeAt(0).childAt(0).text();
                         CNode debug_node = ep_info.find(string("#prginfo_").append(item.attribute("id").substr(strlen("prg_")))).nodeAt(0).childAt(0);
                         CNode child_item;
@@ -208,11 +211,9 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                                 int num_start = str.find_first_of('+')+1;
                                 int num_end = str.find_first_of(')');
                                 j["ep_list"][Section][ep_index]["comments_num"] = str.substr(num_start,num_end-num_start);
-                                //j["ep_list"][Section][ep_index]["comments_num"] = child_item.text().substr(child_item.text().find_first_of('+')+1,child_item.text().find_first_of(')')-2);
                             }else if(child_item.tag() == "br" || child_item.tag() == "hr"){   // continue
                                 continue;
                             }else{          // other info
-                                //auto res = split(child_item.text(),":");
                                 string key;
                                 string value;
                                 string str = child_item.text();
