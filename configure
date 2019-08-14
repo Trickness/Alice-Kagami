@@ -5411,6 +5411,7 @@ else
 fi
 
 # Checks for header files.
+# AC_CHECK_HEADER(boost/asio.hpp,[],[AC_MSG_ERROR([No Boots::ASIO libraries, please install boost.])])
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -5802,14 +5803,6 @@ _ACEOF
 fi
 
 done
-
-
-ac_fn_cxx_check_header_mongrel "$LINENO" "boost/asio.hpp" "ac_cv_header_boost_asio_hpp" "$ac_includes_default"
-if test "x$ac_cv_header_boost_asio_hpp" = xyes; then :
-
-else
-  as_fn_error $? "No Boots::ASIO libraries, please install boost." "$LINENO" 5
-fi
 
 
 ac_fn_cxx_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"

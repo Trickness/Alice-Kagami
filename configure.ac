@@ -19,7 +19,7 @@ AC_CHECK_LIB(pthread,pthread_create,[],[AC_MSG_ERROR([No pthread support])],[])
 AC_CHECK_LIB(sqlite3,sqlite3_open,[],[AC_MSG_ERROR([No sqlite3 support])],[])
 AC_CHECK_LIB(curl,curl_easy_init,[],[AC_MSG_ERROR([No curl support])],[])
 # Checks for header files.
-AC_CHECK_HEADER(boost/asio.hpp,[],[AC_MSG_ERROR([No Boots::ASIO libraries, please install boost.])])
+# AC_CHECK_HEADER(boost/asio.hpp,[],[AC_MSG_ERROR([No Boots::ASIO libraries, please install boost.])])
 AC_CHECK_HEADER(sqlite3.h,[],[AC_MSG_ERROR([No header file for sqlite3])])
 AC_CHECK_HEADERS([stddef.h stdint.h stdlib.h string.h strings.h])
 # Checks for typedefs, structures, and compiler characteristics.
