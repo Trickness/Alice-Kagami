@@ -29,7 +29,8 @@ bool BangumiAdaptor::CheckURI(const string &URI) const {
         return true;
     return false;
 }
-
+// TODOs: 
+//      1. reuse avatar header code
 std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
     if(Data.empty())    return "";
     URI = URI.substr(URI.find_first_of("://")+3);
@@ -183,7 +184,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
 
-            if(doc.find("ul.prg_list").nodeNum() != 0){     // prg_list // TODOs: EP STATUS!
+            if(doc.find("ul.prg_list").nodeNum() != 0){     // prg_list
                 CSelection ep_list = doc.find("ul.prg_list").nodeAt(0).find("li");
                 CNode      ep_info = doc.find("#subject_prg_content").nodeAt(0);
                 string Section = "本篇";
@@ -226,6 +227,80 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     }
                 }
             }
+
+            {   // subject summary
+                CSelection summary = doc.find("#subject_summary");
+                if(summary.nodeNum() == 1){ 
+                    j["summary"] = summary.nodeAt(0).text();
+                }
+            }
+
+            {   // tags
+                CSelection tags = doc.find("div.subject_tag_section").nodeAt(0).find("a");
+                for(size_t i = 0; i < tags.nodeNum(); ++i){
+                    CNode item = tags.nodeAt(i);
+                    j["tags"][item.find("span").nodeAt(0).ownText()] = item.find("small").nodeAt(0).ownText();
+                }
+            }
+
+            {   // rating
+                CNode rating_box = doc.find("div.SidePanel").nodeAt(0);
+                j["rating"]["score"] = rating_box.find("span.number").nodeAt(0).ownText();
+                j["rating"]["description"] = rating_box.find("span.description").nodeAt(0).ownText();
+                if(rating_box.find("small.alarm").nodeNum() == 1){
+                    j["rating"]["rank"] = rating_box.find("small.alarm").nodeAt(0).ownText().substr(1);
+                }else{
+                    j["rating"]["rank"] = "--";
+                }
+                
+                CSelection detail = rating_box.find("li");
+                for(size_t k = 0; k < 10; ++k){
+                    CNode detail_item = detail.nodeAt(k).childAt(0);
+                    string count = detail_item.find("span.count").nodeAt(0).ownText();
+                    j["rating"]["distribution"][detail_item.find("span.label").nodeAt(0).ownText()] = count.substr(1,count.length()-2);
+                }
+            }
+
+            if(doc.find("#browserItemList").nodeNum() != 0){    // characters
+                CSelection chara_list = doc.find("#browserItemList").nodeAt(0).find("li");
+                for(size_t i = 0; i < chara_list.nodeNum(); ++i){
+                    CNode chara_item = chara_list.nodeAt(i);
+                    CNode t_node = chara_item.find("strong").find("a").nodeAt(0);
+                    string chara_name = t_node.ownText();
+                    j["characters"][chara_name]["id"] = t_node.attribute("href").substr(strlen("/character/"));
+
+                    string str = t_node.attribute("title");
+                    if(str.find_first_of(" / ") != string::npos){
+                        j["characters"][chara_name]["translation"] = str.substr(str.find_first_of(" / ")+strlen(" / "));
+                    }else{
+                        j["characters"][chara_name]["translation"] = "";
+                    }
+
+                    string count = chara_item.find("small.fade").nodeAt(0).ownText();
+                    j["characters"][chara_name]["comments_num"] = count.substr(2,count.length()-3);
+
+                    string avatar_header = t_node.find("span.avatarNeue").nodeAt(0).attribute("style");
+                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
+                    if(avatar_header.find_first_of('?') == string::npos){
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
+                    }else{
+                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
+                    }                    
+                    avatar_header[23] = 'l';        // change to size large
+                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);     
+                    j["characters"][chara_name]["header"] = avatar_header;
+
+                    t_node = chara_item.find("span.tip_j").nodeAt(0);
+                    j["characters"][chara_name]["job"] = t_node.find("span.badge_job_tip").nodeAt(0).ownText();
+
+                    CSelection cvs = t_node.find("a");
+                    for(size_t k = 0; k < cvs.nodeNum(); ++k){
+                        CNode cv = cvs.nodeAt(k);
+                        j["characters"][chara_name]["cv"][cv.ownText()] = string(_BGM_PROTOCOL_).append(_BGM_DOMAIN_).append(cv.attribute("href"));
+                    }
+                }
+            }
+
         }else if(t_str == "user"){  // user page
             return "";
         }else{
