@@ -50,3 +50,4 @@ stamp-h1
 .dirstamp
 DebugConsole
 
+*.db
