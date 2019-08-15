@@ -76,7 +76,11 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
     size_t bytes;
     do{
         memcpy(UID,sqlite3_column_text(stmt,0),32);        
+#ifdef __MINGW64__
+        strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
+#else
         strptime((const char*)sqlite3_column_text(stmt,2),"%Y-%m-%d %H:%M:%S", &tm_);
+#endif
         timestamp = mktime(&tm_);
         unique_ptr<CastBookRecord> record(new CastBookRecord(\
             UID,                                \

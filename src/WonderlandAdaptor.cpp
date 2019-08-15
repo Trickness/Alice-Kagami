@@ -1,5 +1,4 @@
 #include "include/WonderlandAdaptor.hpp"
-#include <boost/asio.hpp>
 #include <string>
 #include <vector>
 #include <curl/curl.h>

@@ -4,13 +4,11 @@
 #include <vector>
 #include <iomanip>  // for setw
 #include "include/AliceNoKagami.hpp"
-#include "include/KagamiConsole.hpp"
 
 #include "src/third-party/nlohmann/json.hpp"
 
 
 using namespace std;
-using namespace cli;
 using json = nlohmann::json;
 
 AliceNoKagami *Alice = new AliceNoKagami();

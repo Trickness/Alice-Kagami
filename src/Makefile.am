@@ -14,4 +14,3 @@ include_HEADERS=\
     ../include/CastBook.hpp third-party/gumbo-parser/gumbo.h \
     ../include/ThreadPool.hpp \
     third-party/nlohmann/json.hpp
-
