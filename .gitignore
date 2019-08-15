@@ -42,3 +42,11 @@ depcomp
 install-sh
 missing
 Makefile.in
+Makefile
+config.h
+config.log
+config.status
+stamp-h1
+.dirstamp
+DebugConsole
+
