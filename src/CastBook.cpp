@@ -21,7 +21,7 @@ CastBook::CastBook(const char* BookLocation){
         DEBUG_MSG(sqliteErrorMsg);
         throw(result);
     }
-    
+
     result = sqlite3_exec(this->mBook, "CREATE TABLE IF NOT EXISTS 'Roster' ( \
                                         DOMAIN CHAR(64) PRIMARY KEY NOT NULL, \
                                         COOKIES TEXT,       \
@@ -31,7 +31,7 @@ CastBook::CastBook(const char* BookLocation){
         DEBUG_MSG(sqliteErrorMsg);
         throw(result);
     }
-    
+
 }
 
 CastBook::~CastBook(){
@@ -49,7 +49,7 @@ void CastBook::PutRecord(const char* URI, const void* Buffer, size_t bytes){
     const auto charDigest = reinterpret_cast<const char *>(&digest);
     std::string MD5SUM;
     boost::algorithm::hex(charDigest, charDigest + sizeof(md5::digest_type), std::back_inserter(MD5SUM));
-    
+
     sqlite3_stmt *stmt;
     char sql[9216];
     memset(sql, 0, 9216);
@@ -75,7 +75,7 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
     tm tm_;
     size_t bytes;
     do{
-        memcpy(UID,sqlite3_column_text(stmt,0),32);        
+        memcpy(UID,sqlite3_column_text(stmt,0),32);
 #ifdef __MINGW64__
         strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
 #else

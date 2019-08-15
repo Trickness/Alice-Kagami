@@ -29,13 +29,13 @@ bool BangumiAdaptor::CheckURI(const string &URI) const {
         return true;
     return false;
 }
-// TODOs: 
-//      1. reuse avatar header code
+
+// TODOs:
 std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
     if(Data.empty())    return "";
     URI = URI.substr(URI.find_first_of("://")+3);
     std::vector<std::string> splited = split(URI,"/");
-    
+
     if(splited.size() == 0){
         return "";
     }
@@ -64,8 +64,8 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 subject_type = doc.find("a.focus").nodeAt(0).attribute("href").substr(1);  // subject type, eg. real, game, anime...
                 j["type"] = subject_type;
             }
-            
-            {       // image 
+
+            if(doc.find("img.cover").nodeNum() != 0){       // image
                 string imageURI_medium = string(_BGM_PROTOCOL_).append(doc.find("img.cover").nodeAt(0).attribute("data-cfsrc"));
                 CNode img = doc.find("img.cover").nodeAt(0);
                 string imageURI_small = imageURI_medium;
@@ -86,11 +86,10 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     string info = item.text();
                     int loc = info.find_first_of(':');
                     std::string key = info.substr(0,loc);
-                    
                     CSelection links = item.find("a");
                     json link_j = json::object();
                     for(size_t j = 0; j < links.nodeNum(); ++j){
-                        CNode links_item = links.nodeAt(j);    
+                        CNode links_item = links.nodeAt(j);
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
                     }
                     if(j["infobox"][key] != nullptr){
@@ -100,23 +99,16 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         j["infobox"][key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
                     }
                     j["infobox"][key]["links"] = link_j;
-                    
+
                 }
             }
-
-            {       // recommend list 
+            {       // recommend list
                 CSelection recommend_list = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
                 for(size_t i = 0; i < recommend_list.nodeNum(); ++i){
                     CNode item = recommend_list.nodeAt(i);
                     string avatar_header = item.find("span.avatarNeue").nodeAt(0).attribute("style");
-                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
-                    if(avatar_header.find_first_of('?') == string::npos){
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
-                    }else{
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
-                    }                    avatar_header[23] = 'l';        // change to size large
-                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);
-                    
+                    avatar_header = BangumiAdaptor::ParseImageURI(avatar_header,strlen("user"));
+
                     string avatar_link   = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(item.find("span.avatarNeue").nodeAt(0).parent().attribute("href"));
 
                     CNode r_list_item = item.find("div.innerWithAvatar").nodeAt(0).find("a.avatar").nodeAt(0);
@@ -141,15 +133,8 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 for(size_t i = 0; i < collection_list.nodeNum(); ++i){
                     CNode item = collection_list.nodeAt(i);
                     string avatar_header = item.find("span.avatarNeue").nodeAt(0).attribute("style");
-                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
-                    if(avatar_header.find_first_of('?') == string::npos){
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
-                    }else{
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
-                    }
-                    avatar_header[23] = 'l';        // change to size large
-                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);
-                    
+                    avatar_header = BangumiAdaptor::ParseImageURI(avatar_header,strlen("user"));
+
                     string avatar_link   = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(item.find("span.avatarNeue").nodeAt(0).parent().attribute("href"));
 
                     CNode avatar_node = item.find("div.innerWithAvatar").nodeAt(0);
@@ -230,12 +215,12 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
 
             {   // subject summary
                 CSelection summary = doc.find("#subject_summary");
-                if(summary.nodeNum() == 1){ 
+                if(summary.nodeNum() == 1){
                     j["summary"] = summary.nodeAt(0).text();
                 }
             }
 
-            {   // tags
+            if(doc.find("div.subject_tag_section").nodeNum() != 0){   // tags
                 CSelection tags = doc.find("div.subject_tag_section").nodeAt(0).find("a");
                 for(size_t i = 0; i < tags.nodeNum(); ++i){
                     CNode item = tags.nodeAt(i);
@@ -252,7 +237,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }else{
                     j["rating"]["rank"] = "--";
                 }
-                
+
                 CSelection detail = rating_box.find("li");
                 for(size_t k = 0; k < 10; ++k){
                     CNode detail_item = detail.nodeAt(k).childAt(0);
@@ -271,7 +256,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
 
                     string str = t_node.attribute("title");
                     if(str.find_first_of(" / ") != string::npos){
-                        j["characters"][chara_name]["translation"] = str.substr(str.find_first_of(" / ")+strlen(" / "));
+                        j["characters"][chara_name]["translation"] = str.substr(str.find_first_of('/')+strlen("/ "));
                     }else{
                         j["characters"][chara_name]["translation"] = "";
                     }
@@ -280,15 +265,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     j["characters"][chara_name]["comments_num"] = count.substr(2,count.length()-3);
 
                     string avatar_header = t_node.find("span.avatarNeue").nodeAt(0).attribute("style");
-                    avatar_header = avatar_header.substr(avatar_header.find_first_of("//"));
-                    if(avatar_header.find_first_of('?') == string::npos){
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('\''));
-                    }else{
-                        avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
-                    }                    
-                    avatar_header[23] = 'l';        // change to size large
-                    avatar_header = string(_BGM_PROTOCOL_).append(avatar_header);     
-                    j["characters"][chara_name]["header"] = avatar_header;
+                    j["characters"][chara_name]["header"] = BangumiAdaptor::ParseImageURI(avatar_header,strlen("crt"));
 
                     t_node = chara_item.find("span.tip_j").nodeAt(0);
                     j["characters"][chara_name]["job"] = t_node.find("span.badge_job_tip").nodeAt(0).ownText();
@@ -298,6 +275,32 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         CNode cv = cvs.nodeAt(k);
                         j["characters"][chara_name]["cv"][cv.ownText()] = string(_BGM_PROTOCOL_).append(_BGM_DOMAIN_).append(cv.attribute("href"));
                     }
+                }
+            }
+            if(doc.find("ul.browserCoverSmall").nodeNum() != 0){   // subdivision (单行本之类)
+                CNode top = doc.find("ul.browserCoverSmall").nodeAt(0).parent();
+                j["subdivision"]["title"] = top.find("h2.subtitle").nodeAt(0).ownText();
+                CSelection subdivisions = top.find("a");
+
+                for(size_t i = 0; i < subdivisions.nodeNum(); ++i){
+                    CNode item = subdivisions.nodeAt(i);
+                    string title = item.attribute("title");
+                    j["subdivision"]["list"][title]["id"] = item.attribute("href").substr(strlen("/subject/"));
+                    j["subdivision"]["list"][title]["cover"] = BangumiAdaptor::ParseImageURI(item.childAt(0).attribute("style"),strlen("cover"));
+                }
+            }
+            if(doc.find("ul.browserCoverMedium").nodeNum() != 0){   // related subjects
+                CNode top = doc.find("ul.browserCoverMedium").nodeAt(0);
+                string tag = "untagged";
+                CSelection subdivisions = top.find("li");
+                for(size_t i = 0; i < subdivisions.nodeNum(); ++i){
+                    CNode item = subdivisions.nodeAt(i);
+                    if(item.attribute("class") == "sep"){
+                        tag = item.find("span.sub").nodeAt(0).ownText();
+                    }
+                    j["related"][tag]["id"] = item.find("a.title").nodeAt(0).attribute("href").substr(strlen("/subject/"));
+                    j["related"][tag]["cover"] = BangumiAdaptor::ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("cover"));
+                    j["related"][tag]["title"] = item.find("a.title").nodeAt(0).ownText();
                 }
             }
 
