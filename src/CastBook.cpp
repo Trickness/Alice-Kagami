@@ -45,12 +45,12 @@ CastBook::~CastBook(){
 
 void CastBook::PutRecord(const char* URI, const void* Buffer, size_t bytes){
     hash<string> hash;
-	string str{ URI };
-	str += reinterpret_cast<const char*>(Buffer);
-	stringstream ioss;
-	ioss << std::hex << hash(str);
-	string MD5SUM;
-	ioss >> MD5SUM;
+    string str{ URI };
+    str += reinterpret_cast<const char*>(Buffer);
+    stringstream ioss;
+    ioss << std::hex << hash(str);
+    string MD5SUM;
+    ioss >> MD5SUM;
 
     sqlite3_stmt *stmt;
     char sql[9216];
