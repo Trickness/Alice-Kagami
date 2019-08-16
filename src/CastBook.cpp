@@ -1,4 +1,5 @@
 ﻿#include "include/CastBook.hpp"
+#include <sstream>
 
 
 #ifdef _MSC_VER
