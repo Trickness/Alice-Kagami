@@ -10,7 +10,7 @@
 
 
 //#define BOOK_LOCATION strcat(getenv("HOME"),"/.ACGNCastBook.db")
-#define BOOK_LOCATION ".ACGNCastBook.db"
+#define BOOK_LOCATION "/home/tricks/.ACGNCastBook.db"
 
 class CastBookRecord{
     public:

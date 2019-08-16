@@ -1,8 +1,14 @@
 #include "include/CastBook.hpp"
-#include <boost/uuid/detail/md5.hpp>
-#include <boost/algorithm/hex.hpp>
+#include "boost/uuid/detail/md5.hpp"
+#include "boost/algorithm/hex.hpp"
 
 using boost::uuids::detail::md5;
+
+#ifdef _MSC_VER
+#include "boost/date_time/posix_time/posix_time.hpp"
+using namespace boost::posix_time;
+#endif
+
 using namespace std;
 
 CastBook::CastBook(const char* BookLocation){
@@ -76,8 +82,13 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
     size_t bytes;
     do{
         memcpy(UID,sqlite3_column_text(stmt,0),32);
+
+
 #ifdef __MINGW64__
         strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
+#elif _MSC_VER
+		ptime t(time_from_string(std::string((char*)sqlite3_column_text(stmt, 2))));		// memory leak?
+		tm_ = to_tm(t);
 #else
         strptime((const char*)sqlite3_column_text(stmt,2),"%Y-%m-%d %H:%M:%S", &tm_);
 #endif

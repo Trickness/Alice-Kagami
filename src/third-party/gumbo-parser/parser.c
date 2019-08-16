@@ -19,7 +19,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _MSC_VER
+#else
 #include <strings.h>
+#endif
 
 #include "attribute.h"
 #include "error.h"

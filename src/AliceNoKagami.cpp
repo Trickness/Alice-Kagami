@@ -64,7 +64,7 @@ string AliceNoKagami::GetHTMLSync(const char* URI,  Wonderland::CachePolicy Poli
             return return_var;
         }
     }
-    return 0;
+    return "";
 }
 
 void AliceNoKagami::GetHTMLAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
