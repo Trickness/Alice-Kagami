@@ -27,8 +27,13 @@ bool BangumiAdaptor::CheckURI(const string &URI) const {
         return false;
     }
     string domain = splited[0];
-    if(domain == "bgm.tv" or domain == "bangumi.tv")
-        return true;
+    if(domain == "bgm.tv" or domain == "bangumi.tv"){
+        if(URL.substr(0,strlen("https")) != "https"){
+            DEBUG_MSG("Please https instead of http!");
+            return false;
+          }
+          return true;
+    }
     return false;
 }
 
