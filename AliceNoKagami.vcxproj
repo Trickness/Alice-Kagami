@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{6BF3F7D1-CD2B-4E06-9034-877475E2A54C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(ProjectDir)/libs/win64/libs;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\WinBuild\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinBuild\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/libs/include;$(MSBuildProjectDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BUILDING_LIBCURL;HTTP_ONLY</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libcurl_a.lib;sqlite3.lib;libcrypto.lib;libssl.lib;Crypt32.lib;Normaliz.lib;ws2_32.lib;winmm.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <BuildLog>
+      <Path>$(IntDir)$(MSBuildProjectName).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AliceNoKagami.hpp" />
+    <ClInclude Include="include\Bangumi\BangumiAdaptor.hpp" />
+    <ClInclude Include="include\CastBook.hpp" />
+    <ClInclude Include="include\Config.hpp" />
+    <ClInclude Include="include\KagamiConsole.hpp" />
+    <ClInclude Include="include\ThreadPool.hpp" />
+    <ClInclude Include="include\WonderlandAdaptor.hpp" />
+    <ClInclude Include="src\third-party\gumbo-parser\attribute.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\char_ref.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\Document.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\error.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\gumbo.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\GumboQuery.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\insertion_mode.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\Node.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\Object.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\parser.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\QueryUtil.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\Selection.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\Selector.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\string_buffer.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\string_piece.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tag_enum.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tag_gperf.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tag_sizes.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tag_strings.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tokenizer.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\tokenizer_states.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\token_type.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\utf8.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\util.h" />
+    <ClInclude Include="src\third-party\gumbo-parser\vector.h" />
+    <ClInclude Include="src\third-party\nlohmann\json.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DebugConsole.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildProjectDirectory)/libs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="src\AliceNoKagami.cpp" />
+    <ClCompile Include="src\Bangumi\BangumiAdaptor.cpp" />
+    <ClCompile Include="src\CastBook.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\attribute.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\char_ref.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\Document.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\error.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\GumboQuery.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\Node.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\Object.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\parser.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\QueryUtil.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\Selection.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\Selector.cpp" />
+    <ClCompile Include="src\third-party\gumbo-parser\string_buffer.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\string_piece.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\tag.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\tokenizer.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\utf8.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\util.c" />
+    <ClCompile Include="src\third-party\gumbo-parser\vector.c" />
+    <ClCompile Include="src\ThreadPool.cpp" />
+    <ClCompile Include="src\WonderlandAdaptor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\third-party\gumbo-parser\char_ref.rl" />
+    <None Include="src\third-party\gumbo-parser\tag.in" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

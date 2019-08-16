@@ -1,3 +1,5 @@
+#pragma execution_character_set("utf-8")
+
 #include <iostream>
 #include <memory>
 #include <cstring>
@@ -6,7 +8,6 @@
 #include "include/AliceNoKagami.hpp"
 
 #include "src/third-party/nlohmann/json.hpp"
-
 
 using namespace std;
 using json = nlohmann::json;

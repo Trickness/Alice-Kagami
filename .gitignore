@@ -51,3 +51,6 @@ stamp-h1
 DebugConsole
 
 *.db
+.vs
+*.user
+WinBuild

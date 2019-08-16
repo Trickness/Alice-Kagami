@@ -12,6 +12,9 @@ void testCallback(int taskID,Wonderland::Status status, void* Data, size_t t){
 AliceNoKagami::AliceNoKagami(){
 
     curl_global_init(CURL_GLOBAL_DEFAULT);      // should only init once
+#ifdef _MSC_VER
+	system("chcp 65001");
+#endif
     this->mAdaptors.push_back(new BangumiAdaptor());
     DEBUG_MSG("Alice's Kagami Version 0.1 loaded");
 }

@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Header Files\include">
+      <UniqueIdentifier>{c4290815-fe22-41df-92de-081f34c7e76b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include\Bangumi">
+      <UniqueIdentifier>{a142d404-c53b-4b70-821e-8d2ea7094295}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{8dd6f45b-c2bf-4560-9cfc-2cc77c6141a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\third-party">
+      <UniqueIdentifier>{96ce1547-c2ca-4775-958a-831d11282912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\third-party\nlohmann">
+      <UniqueIdentifier>{4032f786-fe71-4ed9-89f8-ec8d708a86f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\third-party\gumbo-parser">
+      <UniqueIdentifier>{d8b56145-3f7f-4c8e-ab13-21c085d423b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\Bangumi">
+      <UniqueIdentifier>{f7b07e7b-9afb-4c4a-b7c4-93ae7159ecba}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AliceNoKagami.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CastBook.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Config.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\KagamiConsole.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ThreadPool.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WonderlandAdaptor.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Bangumi\BangumiAdaptor.hpp">
+      <Filter>Header Files\include\Bangumi</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\nlohmann\json.hpp">
+      <Filter>Source Files\src\third-party\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\GumboQuery.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\insertion_mode.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\Node.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\Object.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\parser.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\QueryUtil.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\Selection.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\Selector.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\string_buffer.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\string_piece.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tag_enum.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tag_gperf.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tag_sizes.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tag_strings.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\token_type.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tokenizer.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\tokenizer_states.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\utf8.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\util.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\vector.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\attribute.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\char_ref.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\Document.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\error.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\gumbo-parser\gumbo.h">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AliceNoKagami.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CastBook.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ThreadPool.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WonderlandAdaptor.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugConsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\GumboQuery.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\Node.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\Object.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\parser.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\QueryUtil.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\Selection.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\Selector.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\string_buffer.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\string_piece.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\tag.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\tokenizer.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\utf8.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\util.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\vector.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\attribute.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\char_ref.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\Document.cpp">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\gumbo-parser\error.c">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bangumi\BangumiAdaptor.cpp">
+      <Filter>Source Files\src\Bangumi</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\third-party\gumbo-parser\tag.in">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </None>
+    <None Include="src\third-party\gumbo-parser\char_ref.rl">
+      <Filter>Source Files\src\third-party\gumbo-parser</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,3 +1,5 @@
+﻿#pragma execution_character_set("utf-8")
+
 #include "include/Bangumi/BangumiAdaptor.hpp"
 #include "src/third-party/gumbo-parser/Document.h"
 #include "src/third-party/gumbo-parser/Node.h"
@@ -54,6 +56,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
             string subject_type = "";
             {       // title
                 CNode title = doc.find("h1.nameSingle").nodeAt(0) ;
+				CNode tmpNode = title.find("a").nodeAt(0);
                 subject_name = title.find("a").nodeAt(0).text();          // get subject name
                 j["title"] = subject_name;
                 subject_id = title.find("a").nodeAt(0).attribute("href").substr(strlen("/subject/"));
@@ -93,7 +96,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
                     }
                     if(j["infobox"][key] != nullptr){
-                        j["infobox"][key]["text"] =  string(j["infobox"][key]["text"]).append("\n").append(info.substr(loc+2));
+                        j["infobox"][key]["text"] =  j["infobox"][key]["text"].dump().append("\n").append(info.substr(loc+2));
                         link_j.merge_patch(j["infobox"][key]["links"]);
                     }else{
                         j["infobox"][key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
@@ -162,9 +165,10 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 for(size_t i = 0; i < collection_status.nodeNum(); ++i){
                     CNode item = collection_status.nodeAt(i);
                     string txt = item.text();
-                    size_t loc = txt.find_first_of("人");
+                    //size_t loc = txt.find("人");
+					size_t loc = txt.find("人\0");
                     int num = atoi(txt.substr(0,loc).c_str());
-                    string status = txt.substr(loc+strlen("人"));
+                    string status = txt.substr(loc+strlen("人\0"));
                     j["collection_status"][status] = num;
                 }
             }
