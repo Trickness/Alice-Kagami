@@ -7,7 +7,9 @@
 using namespace std;
 using json = nlohmann::json;
 
-
+#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
 
 BangumiAdaptor::BangumiAdaptor()
     :WonderlandAdaptor(){
@@ -317,5 +319,14 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
             return "";
         }
     }
-    return j.dump();
+	string json_str = "";
+	try {
+		json_str = j.dump();
+	}
+	catch (char *e) {
+		DEBUG_MSG(e);
+		free(e);
+	}
+	
+    return json_str;
 }

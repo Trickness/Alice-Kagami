@@ -185,7 +185,6 @@ void WonderlandAdaptor::ParseTask(const char* URI, Wonderland::CachePolicy Polic
     }
     if(Buffer != nullptr)
         free(Buffer);
-    delete URI;
 }
 
 std::string WonderlandAdaptor::GetDomainFromURI(const char* URI){
@@ -200,7 +199,7 @@ std::vector<std::string> WonderlandAdaptor::split(std::string str, std::string p
     std::string::size_type pos;
     std::vector<std::string> result;
 
-    str += pattern;//扩展字符串以方便操作
+    str += pattern;
     int size = str.size();
 
     for (int i = 0; i<size; i++) {
