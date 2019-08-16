@@ -151,15 +151,10 @@ class CBinarySelector: public CSelector
 	public:
 		typedef enum
 		{
-			// || 操作符
 			EUnion,
-			// && 操作符
 			EIntersection,
-			//
 			EChild,
-			//
 			EDescendant,
-			//
 			EAdjacent,
 		} TOperator;
 
@@ -191,33 +186,12 @@ class CAttributeSelector: public CSelector
 	public:
 		typedef enum
 		{
-			/**
-			 * 是否存在
-			 */
 			EExists,
-			/**
-			 * 是否相等
-			 */
 			EEquals,
-			/**
-			 * 是否包含
-			 */
 			EIncludes,
-			/**
-			 * 是否-开始
-			 */
 			EDashMatch,
-			/**
-			 * 是否前缀
-			 */
 			EPrefix,
-			/**
-			 * 是否后缀
-			 */
 			ESuffix,
-			/**
-			 * 是否子串
-			 */
 			ESubString,
 		} TOperator;
 

@@ -1,4 +1,4 @@
-#include "include/AliceNoKagami.hpp"
+﻿#include "include/AliceNoKagami.hpp"
 #include "include/Bangumi/BangumiAdaptor.hpp"
 #include <curl/curl.h>
 using namespace std;

@@ -1,4 +1,4 @@
-#include "include/CastBook.hpp"
+﻿#include "include/CastBook.hpp"
 #include "boost/uuid/detail/md5.hpp"
 #include "boost/algorithm/hex.hpp"
 

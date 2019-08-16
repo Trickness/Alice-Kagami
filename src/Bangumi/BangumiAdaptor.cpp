@@ -1,6 +1,4 @@
-#pragma execution_character_set("utf-8")
-
-#include "include/Bangumi/BangumiAdaptor.hpp"
+﻿#include "include/Bangumi/BangumiAdaptor.hpp"
 #include "src/third-party/gumbo-parser/Document.h"
 #include "src/third-party/gumbo-parser/Node.h"
 #include "src/third-party/nlohmann/json.hpp"
@@ -28,7 +26,7 @@ bool BangumiAdaptor::CheckURI(const string &URI) const {
     }
     string domain = splited[0];
     if(domain == "bgm.tv" or domain == "bangumi.tv"){
-        if(URL.substr(0,strlen("https")) != "https"){
+        if(URI.substr(0,strlen("https")) != "https"){
             DEBUG_MSG("Please https instead of http!");
             return false;
           }
