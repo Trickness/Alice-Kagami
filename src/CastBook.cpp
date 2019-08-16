@@ -1,11 +1,6 @@
 ﻿#include "include/CastBook.hpp"
 #include <sstream>
-
-
-#ifdef _MSC_VER
-#include "boost/date_time/posix_time/posix_time.hpp"
-using namespace boost::posix_time;
-#endif
+#include <time.h>
 
 using namespace std;
 
@@ -84,8 +79,7 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
 #ifdef __MINGW64__
         strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
 #elif _MSC_VER
-		ptime t(time_from_string(std::string((char*)sqlite3_column_text(stmt, 2))));		// memory leak?
-		tm_ = to_tm(t);
+		strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
 #else
         strptime((const char*)sqlite3_column_text(stmt,2),"%Y-%m-%d %H:%M:%S", &tm_);
 #endif
