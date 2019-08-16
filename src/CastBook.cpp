@@ -21,7 +21,7 @@ CastBook::CastBook(const char* BookLocation){
     result = sqlite3_exec(this->mBook,"CREATE TABLE IF NOT EXISTS 'Caches'(\
                                 UID     CHAR(32) PRIMARY KEY NOT NULL,\
                                 URI     TEXT    NOT NULL,\
-                                INCLUSION_DATE DATETIME NOT NULL,\
+                                INCLUSION_DATE DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\
                                 DATA    BLOB NOT NULL);",NULL,NULL,&sqliteErrorMsg);
     if(result != SQLITE_OK){
         DEBUG_MSG(sqliteErrorMsg);
