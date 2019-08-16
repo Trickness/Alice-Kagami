@@ -55,3 +55,5 @@ DebugConsole
 *.user
 WinBuild
 *~
+configure
+config.h.in
