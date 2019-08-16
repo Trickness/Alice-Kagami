@@ -1,8 +1,5 @@
 ﻿#include "include/CastBook.hpp"
-#include "boost/uuid/detail/md5.hpp"
-#include "boost/algorithm/hex.hpp"
 
-using boost::uuids::detail::md5;
 
 #ifdef _MSC_VER
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -47,14 +44,13 @@ CastBook::~CastBook(){
 }
 
 void CastBook::PutRecord(const char* URI, const void* Buffer, size_t bytes){
-    md5 hash;
-    hash.process_bytes(Buffer,bytes);
-    hash.process_bytes(URI,strlen(URI));
-    md5::digest_type digest;
-    hash.get_digest(digest);
-    const auto charDigest = reinterpret_cast<const char *>(&digest);
-    std::string MD5SUM;
-    boost::algorithm::hex(charDigest, charDigest + sizeof(md5::digest_type), std::back_inserter(MD5SUM));
+    hash<string> hash;
+	string str{ URI };
+	str += reinterpret_cast<const char*>(Buffer);
+	stringstream ioss;
+	ioss << std::hex << hash(str);
+	string MD5SUM;
+	ioss >> MD5SUM;
 
     sqlite3_stmt *stmt;
     char sql[9216];
