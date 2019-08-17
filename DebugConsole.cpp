@@ -17,5 +17,6 @@ AliceNoKagami *Alice = new AliceNoKagami();
 int main(){
     string uri;
     cin >> uri;
-    cout << setw(4) <<  json::parse(Alice->GetParsedContentSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE));
+    auto json_str = json::parse(Alice->GetParsedContentSync(uri.c_str(),Wonderland::CachePolicy::FIRST_FROM_CACHE));
+    cout << setw(4) << json_str << endl;
 }
