@@ -5,6 +5,10 @@
 
 #define DEBUG 1
 
+#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+
 #ifdef DEBUG
 #define DEBUG_MSG(MSG)\
     std::cout << "[" << __FILE__ << ":" << __FUNCTION__ << "] " << MSG << std::endl;

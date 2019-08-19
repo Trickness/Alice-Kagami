@@ -7,10 +7,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
-#endif
-
 BangumiAdaptor::BangumiAdaptor()
     :WonderlandAdaptor(){
             DEBUG_MSG("Bangumi Adaptor Version 0.1 loaded.");
@@ -101,7 +97,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
                     }
                     if(j["infobox"][key] != nullptr){
-                        j["infobox"][key]["text"] =  j["infobox"][key]["text"].dump().append("\n").append(info.substr(loc+2));
+                        j["infobox"][key]["text"] =  string(j["infobox"][key]["text"]).append("\n").append(info.substr(loc+2));
                         link_j.merge_patch(j["infobox"][key]["links"]);
                     }else{
                         j["infobox"][key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
@@ -205,7 +201,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                                 string str = child_item.text();
                                 int num_start = str.find_first_of('+')+1;
                                 int num_end = str.find_first_of(')');
-                                j["ep_list"][Section][ep_index]["comments_num"] = str.substr(num_start,num_end-num_start);
+                                j["ep_list"][Section][ep_index]["comments"] = str.substr(num_start,num_end-num_start);
                             }else if(child_item.tag() == "br" || child_item.tag() == "hr"){   // continue
                                 continue;
                             }else{          // other info
@@ -271,7 +267,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     }
 
                     string count = chara_item.find("small.fade").nodeAt(0).ownText();
-                    j["characters"][chara_name]["comments_num"] = count.substr(2,count.length()-3);
+                    j["characters"][chara_name]["comments"] = count.substr(2,count.length()-3);
 
                     string avatar_header = t_node.find("span.avatarNeue").nodeAt(0).attribute("style");
                     j["characters"][chara_name]["header"] = BangumiAdaptor::ParseImageURI(avatar_header,strlen("crt"));
@@ -286,7 +282,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     }
                 }
             }
-            if(doc.find("ul.browserCoverSmall").nodeNum() != 0){   // subdivision (单行本之类)
+            if(doc.find("ul.browserCoverSmall").nodeNum() != 0){   // subdivision 
                 CNode top = doc.find("ul.browserCoverSmall").nodeAt(0).parent();
                 j["subdivision"]["title"] = top.find("h2.subtitle").nodeAt(0).ownText();
                 CSelection subdivisions = top.find("a");
@@ -307,10 +303,64 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     if(item.attribute("class") == "sep"){
                         tag = item.find("span.sub").nodeAt(0).ownText();
                     }
-                    j["related"][tag]["id"] = item.find("a.title").nodeAt(0).attribute("href").substr(strlen("/subject/"));
-                    j["related"][tag]["cover"] = BangumiAdaptor::ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("cover"));
-                    j["related"][tag]["title"] = item.find("a.title").nodeAt(0).ownText();
+                    string title = item.find("a.title").nodeAt(0).ownText();;
+                    j["related"][tag][title]["id"] = item.find("a.title").nodeAt(0).attribute("href").substr(strlen("/subject/"));
+                    j["related"][tag][title]["cover"] = BangumiAdaptor::ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("cover"));
+                    j["related"][tag][title]["translation"] = item.find("a").nodeAt(0).attribute("title"); // ugly fix
                 }
+            }
+
+            if(doc.find("ul.coversSmall").nodeNum() != 0){   // recommend subjects
+                CSelection recommends = doc.find("ul.coversSmall").nodeAt(0).find("li");
+                for(size_t i = 0; i < recommends.nodeNum(); ++i){
+                    CNode item = recommends.nodeAt(i);
+                    string title = item.find("a.l").nodeAt(0).ownText();
+                    j["recommend"][title]["id"] = item.find("a.l").nodeAt(0).attribute("href").substr(strlen("/subject/"));
+                    j["recommend"][title]["translation"] = item.find("a.avatar").nodeAt(0).attribute("title");
+                    j["recommend"][title]["cover"] = BangumiAdaptor::ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("cover"));
+                    
+                }
+            }
+
+            if(doc.find("#entry_list").nodeNum() != 0){
+                CSelection comments = doc.find("#entry_list").nodeAt(0).find("div.item");
+                for(size_t i = 0; i < comments.nodeNum(); ++i){
+                    CNode item = comments.nodeAt(i);
+                    CNode blog = item.find("div.entry").nodeAt(0);
+                    CNode title_node = blog.find("h2.title").nodeAt(0).find("a").nodeAt(0);
+                    CNode header_node = item.find("p.cover").nodeAt(0);
+                    CNode user_node = blog.find("span.tip_j").nodeAt(0).find("a").nodeAt(0);
+                    string title = title_node.ownText();
+                    j["blogs"][title]["id"] = title_node.attribute("href").substr(strlen("/blog/"));
+                    j["blogs"][title]["user"]["header"] = BangumiAdaptor::ParseImageURI(header_node.find("img").nodeAt(0).attribute("data-cfsrc"),strlen("user"));
+                    j["blogs"][title]["user"]["id"] = user_node.attribute("href").substr(strlen("/user/"));
+                    j["blogs"][title]["user"]["avatar"] = user_node.ownText();
+                    j["blogs"][title]["time"] = item.find("small.time").nodeAt(0).ownText();
+                    string comment_str = item.find("small.orange").nodeAt(0).ownText();
+                    j["blogs"][title]["replies"] = comment_str.substr(strlen("(+"),comment_str.length() - strlen("+()"));
+                    j["blogs"][title]["preview"] = blog.find("div.content").nodeAt(0).ownText();
+                }
+            }
+
+            if(doc.find("table.topic_list").nodeNum() != 0){
+                CSelection topics = doc.find("table.topic_list").nodeAt(0).find("tr");
+                for(size_t i = 0; i < topics.nodeNum(); ++i){
+                    CNode item = topics.nodeAt(i);
+                    if(item.find("a.l").nodeNum() == 0)     break;      // ugly hack
+                    CNode title_node = item.find("a.l").nodeAt(0);
+                    CSelection cs = item.find("td");
+                    CNode user_node  = cs.nodeAt(1).find("a").nodeAt(0);
+                    string title = title_node.attribute("title");
+                    j["topic"][title]["id"] = title_node.attribute("href").substr(strlen("/subject/topic/"));
+                    j["topic"][title]["user"]["id"] = user_node.attribute("href").substr(strlen("/user/"));
+                    j["topic"][title]["user"]["avatar"] = user_node.ownText();
+                    string replies = cs.nodeAt(2).text();
+                    j["topic"][title]["replies"] = replies.substr(0,replies.find_first_of(" "));
+                    j["topic"][title]["time"] = cs.nodeAt(3).text();
+                }
+            }
+            {       // comments
+                
             }
 
         }else if(t_str == "user"){  // user page
