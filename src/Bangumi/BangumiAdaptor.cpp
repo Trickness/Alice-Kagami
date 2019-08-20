@@ -360,7 +360,27 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
             {       // comments
-                
+                CSelection comments = doc.find("#comment_box").find("div.item");
+                json v = json::array();
+                for(size_t i = 0; i < comments.nodeNum(); ++i){
+                    CNode item = comments.nodeAt(i);
+                    CNode user_node = item.find("a.l").nodeAt(0);
+                    string avatar_id = user_node.attribute("href").substr(strlen("/user/"));
+                    json t = json::object();
+                    t["avatar"] = {
+                        {"id",avatar_id},
+                        {"name",user_node.ownText()},
+                        {"header",BangumiAdaptor::ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("user"))}
+                    };
+                    t["time"] = item.find("small.grey").nodeAt(0).ownText().substr(strlen("@ "));
+                    t["text"] = item.find("p").nodeAt(0).ownText();
+                    if(item.find("span.starlight").nodeNum() != 0){
+                        string star_info = item.find("span.starlight").nodeAt(0).attribute("class");
+                        t["stars"] = star_info.substr(strlen("starlight stars"));
+                    }
+                    v.push_back(t);
+                }
+                j["comments"] = v;
             }
 
         }else if(t_str == "user"){  // user page
