@@ -386,6 +386,23 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 j["comments"] = v;
             }
 
+            if(subject_type == "music"){
+                CSelection ep_list = doc.find("ul.line_list_music").nodeAt(0).find("li");
+                string tag = "untagged";
+                for(size_t i = 0; i < ep_list.nodeNum(); ++i){
+                    if(ep_list.nodeAt(i).attribute("class") == "cat"){
+                        tag = ep_list.nodeAt(i).ownText();
+                        j["ep_list"][tag] = json::array();
+                        continue;
+                    }
+                    if(j["ep_list"][tag] == nullptr)    j["ep_list"][tag] = json::object();
+                    CNode item = ep_list.nodeAt(i).find("h6").nodeAt(0).find("a").nodeAt(0);
+                    json v = json::object();
+                    v["id"] = item.attribute("href").substr(strlen("/ep/"));
+                    v["title"] = item.ownText();
+                    j["ep_list"][tag].push_back(v);
+                }
+            }
         }else if(t_str == "user"){  // user page
             return "";
         }else{
