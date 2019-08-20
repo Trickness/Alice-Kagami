@@ -85,6 +85,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
 
             {       // info box
                 CSelection infobox = doc.find("#infobox").nodeAt(0).find("li");
+		j["infobox"] = json::array();
                 for (size_t i = 0; i < infobox.nodeNum(); ++i){
                     CNode item = infobox.nodeAt(i);
                     string info = item.text();
@@ -92,24 +93,26 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     std::string key = info.substr(0,loc);
                     CSelection links = item.find("a");
                     json link_j = json::object();
+		    json v = json::object();
                     for(size_t j = 0; j < links.nodeNum(); ++j){
                         CNode links_item = links.nodeAt(j);
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
                     }
-                    if(j["infobox"][key] != nullptr){
-                        j["infobox"][key]["text"] =  string(j["infobox"][key]["text"]).append("\n").append(info.substr(loc+2));
-                        link_j.merge_patch(j["infobox"][key]["links"]);
+                    if(v[key] != nullptr){
+                        v[key]["text"] =  string(v[key]["text"]).append("\n").append(info.substr(loc+2));
+                        link_j.merge_patch(v[key]["links"]);
                     }else{
-                        j["infobox"][key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
+                        v[key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
                     }
-                    j["infobox"][key]["links"] = link_j;
+                    v[key]["links"] = link_j;
+		    j["infobox"].push_back(v);
 
                 }
             }
-            {       // recommend list
-                CSelection recommend_list = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
-                for(size_t i = 0; i < recommend_list.nodeNum(); ++i){
-                    CNode item = recommend_list.nodeAt(i);
+            {       // related index
+                CSelection related_index = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
+                for(size_t i = 0; i < related_index.nodeNum(); ++i){
+                    CNode item = related_index.nodeAt(i);
                     string avatar_header = item.find("span.avatarNeue").nodeAt(0).attribute("style");
                     avatar_header = BangumiAdaptor::ParseImageURI(avatar_header,strlen("user"));
 
@@ -121,7 +124,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
 
                     string avatar        = item.find("small.grey").nodeAt(0).find("a.avatar").nodeAt(0).text();
 
-                    j["recommend_list"][list_title] = {
+                    j["related_index"][list_title] = {
                         {"link",list_link},
                         {"avatar",{
                             {"name",avatar},

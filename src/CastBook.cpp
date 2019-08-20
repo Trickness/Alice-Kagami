@@ -79,7 +79,9 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
 #ifdef __MINGW64__
         strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
 #elif _MSC_VER
-		strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
+        strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
+#elif __MSYS__
+        strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
 #else
         strptime((const char*)sqlite3_column_text(stmt,2),"%Y-%m-%d %H:%M:%S", &tm_);
 #endif
