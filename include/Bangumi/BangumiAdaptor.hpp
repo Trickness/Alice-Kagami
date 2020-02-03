@@ -13,8 +13,10 @@ class BangumiAdaptor : public WonderlandAdaptor{
         ~BangumiAdaptor();
 
         bool CheckURI(const std::string &URI) const;
+        void SegFaultHandler_Parse(void);
     protected:
         std::string ParseContent(std::string URI, const std::string &Data) const;
+        //void SegFaultHandler_Parse(int signum,jmp_buf env);
 
     private:
         static std::string ParseImageURI(std::string style_bg_image, int type){

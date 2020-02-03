@@ -26,24 +26,24 @@ AliceNoKagami::~AliceNoKagami(){
     }
 }
 
-std::string AliceNoKagami::GetParsedContentSync(const char* URI, Wonderland::CachePolicy Policy){
+std::string AliceNoKagami::GetParsedContentSync(std::string URI, Wonderland::CachePolicy Policy){
     for(auto adaptor:this->mAdaptors){
         void* Buffer = nullptr;
         if(adaptor->CheckURI(URI)){
             size_t bytes = adaptor->GetParsedSync(URI, Buffer, Policy);
             if(bytes == 0){
                 DEBUG_MSG("Failed to parse URI [" << URI << "]");
-                return "";
+                return "{\"status\":\"failed\",\"reason\":\"Unknown error, contact author " + adaptor->GetModuleAuthor() + " for help \"}";
             }
             string return_var((char*)Buffer,bytes);
             free(Buffer);
             return return_var;
         }
     }
-    return "";
+    return "{\"status\":\"failed\",\"reason\":\"No handler for URI: " + URI + " \"}";
 }
 
-void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
+void AliceNoKagami::GetParsedContentAsync(std::string URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     for(auto adaptor:this->mAdaptors){
         if(adaptor->CheckURI(URI)){
             adaptor->GetParsedAsync(URI, Policy, _Callback);
@@ -53,7 +53,7 @@ void AliceNoKagami::GetParsedContentAsync(const char* URI, Wonderland::CachePoli
     DEBUG_MSG("Warning: No Adaptor found for [" << URI << "]");
 }
 
-string AliceNoKagami::GetHTMLSync(const char* URI,  Wonderland::CachePolicy Policy){
+string AliceNoKagami::GetHTMLSync(std::string URI,  Wonderland::CachePolicy Policy){
     for(auto adaptor:this->mAdaptors){
         if(adaptor->CheckURI(URI)){
             void* Buffer = nullptr;
@@ -70,7 +70,7 @@ string AliceNoKagami::GetHTMLSync(const char* URI,  Wonderland::CachePolicy Poli
     return "";
 }
 
-void AliceNoKagami::GetHTMLAsync(const char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
+void AliceNoKagami::GetHTMLAsync(std::string URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     for(auto adaptor:this->mAdaptors){
         if(adaptor->CheckURI(URI)){
             adaptor->GetHTMLAsync(URI, Policy, _Callback);

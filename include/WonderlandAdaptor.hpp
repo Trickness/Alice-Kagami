@@ -4,6 +4,8 @@
 #include <iostream>
 #include <functional>
 #include <curl/curl.h>
+#include <csetjmp> // for seg fault control (setjmp)
+#include <csignal> // for set fault control (signal)
 #include "Config.hpp"
 #include "CastBook.hpp"
 #include "ThreadPool.hpp"
@@ -20,24 +22,24 @@ namespace Wonderland{
 
 class WonderlandAdaptor{
     public:
-        WonderlandAdaptor();
+        WonderlandAdaptor(std::string name, std::string version, std::string author);
         ~WonderlandAdaptor(); 
         
         void GetHTMLAsync( 
-            const char* URI, 
+            const std::string URI, 
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    
             Wonderland::NetworkCallback _Callback = nullptr   
         );
 
         /* Buffer need to be a void ptr, and you should free() it yourself (thread safe)*/
         size_t GetHTMLSync( 
-            const char* URI, 
+            const  std::string URI, 
             void *&Buffer,  
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE      
         );
 
         void GetParsedAsync(  
-            const char* URI, 
+            std::string URI, 
             Wonderland::CachePolicy Policy = Wonderland::CachePolicy::FIRST_FROM_CACHE,    
             Wonderland::NetworkCallback _Callback = nullptr   
         );
@@ -65,15 +67,24 @@ class WonderlandAdaptor{
 
 
         virtual bool CheckURI(const std::string &URI) const = 0;
+        std::string GetModuleName(void){return ModuleName;};
+        std::string GetModuleVersion(void){return ModuleVersion;};
+        std::string GetModuleAuthor(void){return ModuleAuthor;};
 
+        virtual void SegFaultHandler_Parse(void){};
 
     protected:
         WonderlandAdaptor(const WonderlandAdaptor &);
-        void NetworkTask(char*URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
+        void NetworkTask(std::string URI, Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
         Wonderland::Status NetworkFetch(const char* URI,std::string &, void *&Buffer, size_t &bytes);
         void ParseTask(const char*,Wonderland::CachePolicy, Wonderland::NetworkCallback _Callback);
 
         virtual std::string ParseContent(std::string ,const std::string &) const = 0;
+
+        std::string ModuleName;
+        std::string ModuleVersion;
+        std::string ModuleAuthor;
+
     private:
         CastBook *mCastBook;
         ThreadPool mThreadPool;

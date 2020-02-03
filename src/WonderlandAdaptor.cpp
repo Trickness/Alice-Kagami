@@ -5,13 +5,20 @@
 
 using namespace std;
 
+pthread_key_t env_key;
+pthread_key_t self_key;
+
 size_t writeToBuffer(void *ptr, size_t size, size_t count, void *buffer){
     ((string*)buffer)->append((char*)ptr,0,size * count);
     return size * count;
 }
 
-WonderlandAdaptor::WonderlandAdaptor(){
+WonderlandAdaptor::WonderlandAdaptor(string name, string version, string author){
     this->mCastBook = new CastBook();
+    this->ModuleName = name;
+    this->ModuleVersion = version;
+    this->ModuleAuthor = author;
+    DEBUG_MSG(this->ModuleName << " version " << this->ModuleVersion << " is loading...");
 }
 
 WonderlandAdaptor::~WonderlandAdaptor(){
@@ -19,27 +26,37 @@ WonderlandAdaptor::~WonderlandAdaptor(){
 }
 
 
-void WonderlandAdaptor::GetHTMLAsync(const char* URI,  \
+void WonderlandAdaptor::GetHTMLAsync(const std::string URI,  \
         Wonderland::CachePolicy CachePolicy,     \
         Wonderland::NetworkCallback _Callback){
+
+    CHECK_PARAM_STR(URI,)
 #if THREAD_POOL_SIZE != 0
-    CHECK_PARAM_PTR(URI,)
-    char* copyURI = (char*)malloc(strlen(URI)+1);
-    memset(copyURI,0,strlen(URI)+1);
-    strcpy(copyURI,URI);
-    this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::NetworkTask,this,copyURI,CachePolicy, _Callback));
+    this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::NetworkTask,this,URI,CachePolicy, _Callback));
+#else
+    void *Buffer = nullptr;
+    auto bytes = this->GetHTMLSync(URI, Buffer, CachePolicy);
+    if(_Callback){
+        if(bytes){
+            string strVar((char*)Buffer,bytes);
+            _Callback(Wonderland::Status::SUCCESS,strVar);
+        }else{
+            _Callback(Wonderland::Status::FAILED,"");
+        }
+    }
+    if(Buffer)  free(Buffer);
 #endif
     return;
 }
 
 
-size_t WonderlandAdaptor::GetHTMLSync(const char* URI,  \
+size_t WonderlandAdaptor::GetHTMLSync(const std::string URI,  \
         void *&Buffer,      \
         Wonderland::CachePolicy CachePolicy){
-    CHECK_PARAM_PTR(URI,0)
+    CHECK_PARAM_STR(URI,0)
     CastBook *castBook = new CastBook();
     if(CachePolicy == Wonderland::CachePolicy::FIRST_FROM_CACHE || CachePolicy == Wonderland::CachePolicy::ONLY_FROM_CACHE){
-        unique_ptr<CastBookRecord> result = castBook->GetRecord(URI);
+        unique_ptr<CastBookRecord> result = castBook->GetRecord(URI.c_str());
         if(result){
             Buffer = malloc(result->GetSize());
             memcpy(Buffer, result->GetData(), result->GetSize());
@@ -50,19 +67,19 @@ size_t WonderlandAdaptor::GetHTMLSync(const char* URI,  \
         }
     }
     size_t bytes = 0;
-    string Domain = this->GetDomainFromURI(URI);
+    string Domain = this->GetDomainFromURI(URI.c_str());
     string Cookies = castBook->GetRosterCookies(Domain.c_str());
 
-    Wonderland::Status status = this->NetworkFetch(URI,Cookies, Buffer, bytes);
+    Wonderland::Status status = this->NetworkFetch(URI.c_str(),Cookies, Buffer, bytes);
     if(status == Wonderland::Status::SUCCESS){
-        castBook->PutRecord(URI, Buffer, bytes);
+        castBook->PutRecord(URI.c_str(), Buffer, bytes);
         castBook->SetRosterCookies(Domain.c_str(), Cookies.c_str());
     }
     return bytes;
 }
 
 
-void WonderlandAdaptor::NetworkTask(char* URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
+void WonderlandAdaptor::NetworkTask(std::string URI, Wonderland::CachePolicy Policy, Wonderland::NetworkCallback _Callback){
     void* Buffer = nullptr;
     size_t bytes = this->GetHTMLSync(URI, Buffer, Policy);
     Wonderland::Status status ;
@@ -76,9 +93,7 @@ void WonderlandAdaptor::NetworkTask(char* URI, Wonderland::CachePolicy Policy, W
     }
     if(Buffer != nullptr)
         free(Buffer);
-    free(URI);
 }
-
 
 Wonderland::Status WonderlandAdaptor::NetworkFetch(const char* URI, std::string &Cookies, void *&Buffer, size_t &bytes){
     CURL *curl = curl_easy_init();          // new curl_session;
@@ -135,6 +150,23 @@ void WonderlandAdaptor::CacheResource(const char* URI, const void *Buffer, size_
     this->mCastBook->PutRecord(URI,Buffer,Bytes);
 }
 
+void DefaultSegFaultHandler_Parse(int signum){
+    WonderlandAdaptor* self = (WonderlandAdaptor*) pthread_getspecific(self_key);
+    printf("\n");
+    DEBUG_MSG(" ---- Segfault encountered during parsing! ----");
+    DEBUG_MSG("       Module Name : " << self->GetModuleName());
+    DEBUG_MSG("    Module Version : " << self->GetModuleVersion());
+    DEBUG_MSG("     Module Author : " << self->GetModuleAuthor());
+    DEBUG_MSG(" ----                 END                  ----");
+    printf("\n");
+    
+    self->SegFaultHandler_Parse();      // 调用自定义处理函数
+
+    signal(SIGSEGV,SIG_DFL);
+    jmp_buf* env = (jmp_buf*) pthread_getspecific(env_key);
+    longjmp(*env,1);
+}
+
 size_t WonderlandAdaptor::GetParsedSync( \
             std::string URI, \
             void *&Buffer,  \
@@ -143,7 +175,25 @@ size_t WonderlandAdaptor::GetParsedSync( \
     if(bytes){
         string result((char*)Buffer);
         free(Buffer);
-        result = this->ParseContent(URI, result);
+        jmp_buf* env = (jmp_buf*)malloc(sizeof(jmp_buf));
+        int r =  setjmp(*env);
+        pthread_key_create(&env_key,NULL);
+        pthread_key_create(&self_key,NULL);
+        pthread_setspecific(env_key,(void*)env);
+        pthread_setspecific(self_key,(void*)this);
+        if(r == 0){
+            signal(SIGSEGV, DefaultSegFaultHandler_Parse);            
+            result = this->ParseContent(URI, result);
+            signal(SIGSEGV,SIG_DFL);
+        }else{
+            jmp_buf* env = (jmp_buf*) pthread_getspecific(env_key);
+            free(env);
+            pthread_key_delete(env_key);
+            pthread_key_delete(self_key);
+            return 0;
+        }
+        pthread_key_delete(env_key);
+        pthread_key_delete(self_key);
         if(result.length() != 0){
             bytes = result.length();
             Buffer = (char*) malloc(bytes+1);
@@ -156,15 +206,15 @@ size_t WonderlandAdaptor::GetParsedSync( \
     return bytes;
 }
 
-void WonderlandAdaptor::GetParsedAsync(const char* URI,  \
+void WonderlandAdaptor::GetParsedAsync(         \
+        std::string URI,                        \
         Wonderland::CachePolicy CachePolicy,     \
         Wonderland::NetworkCallback _Callback){
+    CHECK_PARAM_STR(URI,_Callback(Wonderland::Status::FAILED,""))
 #if THREAD_POOL_SIZE != 0
-    CHECK_PARAM_PTR(URI,)
-    char* copyURI = (char*)malloc(strlen(URI)+1);
-    memset(copyURI,0,strlen(URI)+1);
-    strcpy(copyURI,URI);
-    this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::ParseTask,this,copyURI,CachePolicy,_Callback));
+    this->mThreadPool.AddTask(std::bind(&WonderlandAdaptor::ParseTask,this,URI.c_str(),CachePolicy,_Callback));
+#else
+    this->ParseTask(URI.c_str(),CachePolicy,_Callback);
 #endif
     return;
 }

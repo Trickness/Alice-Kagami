@@ -2,6 +2,8 @@
 #define _CONFIG_HPP__
 #include <cstring>
 #include <iostream>
+#include <thread>
+#include <mutex>
 
 #define DEBUG 1
 
@@ -19,7 +21,9 @@
 #define CHECK_PARAM_PTR(PARAM,RETURN)  \
     if (PARAM == nullptr){ DEBUG_MSG(__FUNCTION__ << " : " << __LINE__ << ": Null param ptr"); return RETURN; }
 
-#define THREAD_POOL_SIZE 0      // 0 to disable threadpool
+#define CHECK_PARAM_STR(PARAM,RETURN)  \
+    if (PARAM.empty()){ DEBUG_MSG(__FUNCTION__ << " : " << __LINE__ << ": Empty param std::string"); return RETURN; }
 
+#define THREAD_POOL_SIZE 0      // 0 to disable threadpool
 
 #endif

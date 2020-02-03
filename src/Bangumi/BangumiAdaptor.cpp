@@ -8,12 +8,14 @@ using namespace std;
 using json = nlohmann::json;
 
 BangumiAdaptor::BangumiAdaptor()
-    :WonderlandAdaptor(){
-            DEBUG_MSG("Bangumi Adaptor Version 0.1 loaded.");
+    :WonderlandAdaptor("Bangumi","0.01","sternwzhang(sternwzhang@outlook.com)"){
 }
 
 BangumiAdaptor::~BangumiAdaptor(){
 
+}
+
+void BangumiAdaptor::SegFaultHandler_Parse(void){
 }
 
 bool BangumiAdaptor::CheckURI(const string &URI) const {
@@ -55,7 +57,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
             string subject_id = "";
             string subject_name = "";
             string subject_type = "";
-            {       // title
+            if (doc.find("h1.nameSingle").nodeNum() != 0){  // title
                 CNode title = doc.find("h1.nameSingle").nodeAt(0) ;
 				CNode tmpNode = title.find("a").nodeAt(0);
                 subject_name = title.find("a").nodeAt(0).text();          // get subject name
@@ -67,6 +69,18 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     j["subtype"] = "";
                 subject_type = doc.find("a.focus").nodeAt(0).attribute("href").substr(1);  // subject type, eg. real, game, anime...
                 j["type"] = subject_type;
+            }else{
+                j["message"] = doc.find("div.message").nodeAt(0).find("p.text").nodeAt(0).text();
+                j["URI"] = URI;
+                string json_str = "";
+                try {
+                    json_str = j.dump();
+                }
+                catch (char *e) {
+                    DEBUG_MSG(e);
+                    free(e);
+                }
+                return json_str;
             }
 
             if(doc.find("img.cover").nodeNum() != 0){       // image
@@ -83,9 +97,9 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 };
             }
 
-            {       // info box
+            if(doc.find("#infobox").nodeNum() != 0){       // info box
                 CSelection infobox = doc.find("#infobox").nodeAt(0).find("li");
-		j["infobox"] = json::array();
+		        j["infobox"] = json::array();
                 for (size_t i = 0; i < infobox.nodeNum(); ++i){
                     CNode item = infobox.nodeAt(i);
                     string info = item.text();
@@ -93,7 +107,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                     std::string key = info.substr(0,loc);
                     CSelection links = item.find("a");
                     json link_j = json::object();
-		    json v = json::object();
+		            json v = json::object();
                     for(size_t j = 0; j < links.nodeNum(); ++j){
                         CNode links_item = links.nodeAt(j);
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
@@ -105,11 +119,10 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         v[key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
                     }
                     v[key]["links"] = link_j;
-		    j["infobox"].push_back(v);
-
+		            j["infobox"].push_back(v);
                 }
             }
-            {       // related index
+            if(doc.find("#subjectPanelIndex").nodeNum() != 0){       // related index
                 CSelection related_index = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
                 for(size_t i = 0; i < related_index.nodeNum(); ++i){
                     CNode item = related_index.nodeAt(i);
@@ -135,7 +148,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
 
-            {       // Collection list
+            if(doc.find("#subjectPanelCollect").nodeNum() != 0){       // Collection list
                 CSelection collection_list = doc.find("#subjectPanelCollect").nodeAt(0).find("li.clearit");
                 for(size_t i = 0; i < collection_list.nodeNum(); ++i){
                     CNode item = collection_list.nodeAt(i);
@@ -164,7 +177,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
 
-            {       // collection status
+            if(doc.find("#subjectPanelCollect").nodeNum() != 0){       // collection status
                 CSelection collection_status = doc.find("#subjectPanelCollect").nodeAt(0).find("span.tip_i").nodeAt(0).find("a.l");
                 for(size_t i = 0; i < collection_status.nodeNum(); ++i){
                     CNode item = collection_status.nodeAt(i);
