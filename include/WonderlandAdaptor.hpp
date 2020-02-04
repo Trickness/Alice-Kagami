@@ -18,10 +18,10 @@
 /*  Should only one instance in the program */
 
 namespace Wonderland{
-    enum CachePolicy{ONLY_FROM_CACHE, FIRST_FROM_CACHE, NEVER_FROM_CACHE};    
-    enum Status{SUCCESS, FAILED};
+    enum class CachePolicy:unsigned int{ONLY_FROM_CACHE, FIRST_FROM_CACHE, NEVER_FROM_CACHE};    
+    enum class Status:unsigned int{SUCCESS, FAILED};
     //      return_status              data     
-    typedef std::function<void(Status, std::string)> NetworkCallback; 
+    typedef std::function<void(Wonderland::Status, std::string)> NetworkCallback; 
 }
 
 class WonderlandAdaptor{

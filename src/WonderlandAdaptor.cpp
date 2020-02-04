@@ -119,11 +119,19 @@ Wonderland::Status WonderlandAdaptor::NetworkFetch(const char* URI, std::string 
         if(res != CURLE_OK){
             bytes = strlen(curl_easy_strerror(res));
             Buffer = malloc(bytes+1);
+            if (!Buffer) {
+                DEBUG_MSG("Failed to alloc memory!");
+                ExitThread(0);
+            }
             memset(Buffer,0,bytes+1);
             strcpy((char*)Buffer,curl_easy_strerror(res));
         }else{
             bytes = data.length();
             Buffer= malloc(bytes+1);
+            if (!Buffer) {
+                DEBUG_MSG("Failed to alloc memory!");
+                ExitThread(0);
+            }
             memset(Buffer, 0, bytes+1);
             memcpy(Buffer, data.c_str(), bytes);
             struct curl_slist *cookies_updated;
@@ -241,6 +249,10 @@ size_t WonderlandAdaptor::GetParsedSync( \
         if(result.length() != 0){
             bytes = result.length();
             Buffer = (char*) malloc(bytes+1);
+            if (!Buffer) {
+                DEBUG_MSG("Failed to alloc memory!");
+                ExitThread(0);
+            }
             memset(Buffer,0,bytes+1);
             memcpy(Buffer, result.c_str(), bytes);
         }else{

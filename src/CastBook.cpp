@@ -170,6 +170,10 @@ CastBookRecord::CastBookRecord(const char *UID, const char* URI, time_t t,const 
     strcpy(this->mURI,URI);
     this->mInclusionDatetime = t;
     this->mData = malloc(Bytes);
+    if (!this->mData) {
+        DEBUG_MSG("Failed to alloc memory");
+        exit(1);
+    }
     memset(mData,0,Bytes);
     memcpy(this->mData,Data,Bytes);
     this->mDataSize = Bytes;
