@@ -79,10 +79,15 @@ size_t CastBook::GetAllRecord(const char* URI, vector<unique_ptr<CastBookRecord>
 #ifdef __MINGW64__
         strftime((char*)sqlite3_column_text(stmt,2),64,"%Y-%m-%d %H:%M:%S", &tm_);
 #elif _MSC_VER
-        strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
+        if (sscanf((const char*)sqlite3_column_text(stmt, 2), "%d-%d-%d %d:%d:%d", &tm_.tm_year, &tm_.tm_mon, &tm_.tm_mday, &tm_.tm_hour, &tm_.tm_min, &tm_.tm_sec) == 0) {
+            DEBUG_MSG("Failed to parse time str");
+            return 0;
+        }
+        tm_.tm_year -= 1900;
+        tm_.tm_mon -= 1;
 #elif __MSYS__
         strftime((char*)sqlite3_column_text(stmt, 2), 64, "%Y-%m-%d %H:%M:%S", &tm_);
-#else
+#elif __linux__
         strptime((const char*)sqlite3_column_text(stmt,2),"%Y-%m-%d %H:%M:%S", &tm_);
 #endif
         timestamp = mktime(&tm_);

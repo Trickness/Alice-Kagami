@@ -5,8 +5,13 @@
 
 using namespace std;
 
+#ifdef __linux__
 pthread_key_t env_key;
 pthread_key_t self_key;
+#elif _MSC_VER
+DWORD env_key;
+DWORD self_key;
+#endif
 
 size_t writeToBuffer(void *ptr, size_t size, size_t count, void *buffer){
     ((string*)buffer)->append((char*)ptr,0,size * count);
@@ -151,7 +156,13 @@ void WonderlandAdaptor::CacheResource(const char* URI, const void *Buffer, size_
 }
 
 void DefaultSegFaultHandler_Parse(int signum){
+#ifdef __linux__
     WonderlandAdaptor* self = (WonderlandAdaptor*) pthread_getspecific(self_key);
+    jmp_buf* env = (jmp_buf*)pthread_getspecific(env_key);
+#elif _MSC_VER
+    WonderlandAdaptor* self = (WonderlandAdaptor*)TlsGetValue(self_key);
+    jmp_buf* env = (jmp_buf*)TlsGetValue(env_key);
+#endif
     printf("\n");
     DEBUG_MSG(" ---- Segfault encountered during parsing! ----");
     DEBUG_MSG("       Module Name : " << self->GetModuleName());
@@ -163,7 +174,6 @@ void DefaultSegFaultHandler_Parse(int signum){
     self->SegFaultHandler_Parse();      // 调用自定义处理函数
 
     signal(SIGSEGV,SIG_DFL);
-    jmp_buf* env = (jmp_buf*) pthread_getspecific(env_key);
     longjmp(*env,1);
 }
 
@@ -172,28 +182,62 @@ size_t WonderlandAdaptor::GetParsedSync( \
             void *&Buffer,  \
             Wonderland::CachePolicy Policy){
     size_t bytes = this->GetHTMLSync(URI.c_str(), Buffer, Policy);
-    if(bytes){
+    if (bytes) {
         string result((char*)Buffer);
         free(Buffer);
+#ifdef __linux__
         jmp_buf* env = (jmp_buf*)malloc(sizeof(jmp_buf));
-        int r =  setjmp(*env);
-        pthread_key_create(&env_key,NULL);
-        pthread_key_create(&self_key,NULL);
-        pthread_setspecific(env_key,(void*)env);
-        pthread_setspecific(self_key,(void*)this);
-        if(r == 0){
-            signal(SIGSEGV, DefaultSegFaultHandler_Parse);            
+        pthread_key_create(&env_key, NULL);
+        pthread_key_create(&self_key, NULL);
+        pthread_setspecific(env_key, (void*)env);
+        pthread_setspecific(self_key, (void*)this);
+#elif _MSC_VER
+        jmp_buf* env = (jmp_buf*)LocalAlloc(LPTR, sizeof(jmp_buf));
+        if (env == nullptr) {
+            DEBUG_MSG("Failed to alloc local memory!");
+            ExitThread(1);
+        }
+        if ((env_key = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
+            DEBUG_MSG("Failed to alloc Thread Local Storage for JMP_ENV");
+            ExitThread(1);
+        }
+        if ((self_key = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
+            DEBUG_MSG("Failed to alloc Thread Local Storage for THIS");
+            ExitThread(1);
+        }
+        TlsSetValue(env_key, (LPVOID)env);
+        TlsSetValue(self_key, (LPVOID)this);
+#endif
+        int r = setjmp(*env);
+        if (r == 0) {
+            signal(SIGSEGV, DefaultSegFaultHandler_Parse);
             result = this->ParseContent(URI, result);
-            signal(SIGSEGV,SIG_DFL);
-        }else{
-            jmp_buf* env = (jmp_buf*) pthread_getspecific(env_key);
+            signal(SIGSEGV, SIG_DFL);
+        }
+        else {
+#ifdef __linux
+            jmp_buf* env = (jmp_buf*)pthread_getspecific(env_key);
             free(env);
             pthread_key_delete(env_key);
             pthread_key_delete(self_key);
             return 0;
         }
+        jmp_buf* env = (jmp_buf*)pthread_getspecific(env_key);
+        free(env);
         pthread_key_delete(env_key);
         pthread_key_delete(self_key);
+#elif _MSC_VER
+            jmp_buf* env = (jmp_buf*)TlsGetValue(env_key);
+            LocalFree(env);
+            TlsFree(env_key);
+            TlsFree(self_key);
+            return 0;
+        }
+        env = (jmp_buf*)TlsGetValue(env_key);
+        LocalFree(env);
+        TlsFree(env_key);
+        TlsFree(self_key);
+#endif
         if(result.length() != 0){
             bytes = result.length();
             Buffer = (char*) malloc(bytes+1);

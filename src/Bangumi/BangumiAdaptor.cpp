@@ -113,7 +113,9 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                         link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
                     }
                     if(v[key] != nullptr){
-                        v[key]["text"] =  string(v[key]["text"]).append("\n").append(info.substr(loc+2));
+                        string s = v[key]["text"];
+                        v[key]["text"] = s.append("\n").append(info.substr(loc+2));
+                        //v[key]["text"] =  string(v[key]["text"]).append("\n").append(info.substr(loc+2));
                         link_j.merge_patch(v[key]["links"]);
                     }else{
                         v[key] = {{"text",info.substr(loc+2)}};     // skip ':' and space

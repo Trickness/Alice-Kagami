@@ -33,6 +33,9 @@
 
 .vscode/
 .deps/
+x64/
+WinBuild/
+x32/
 
 autom4te.cache/
 aclocal.m4
@@ -57,3 +60,4 @@ WinBuild
 *~
 configure
 config.h.in
+AliceNoKagami.log

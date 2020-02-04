@@ -10,6 +10,10 @@
 #include "CastBook.hpp"
 #include "ThreadPool.hpp"
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
+
 /*  Network Connector & Cache controller */
 /*  Should only one instance in the program */
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -70,9 +70,14 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(ProjectDir)/libs/win64/libs;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\WinBuild\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>WinBuild\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\include;C:\local-bin\include\sqlite3;C:\Users\SternW\source\repos\AliceNoKagami;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\local-bin\libs\msvc_x86_64\sqlite3;C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\include;C:\local-bin\include\sqlite3;C:\Users\SternW\source\repos\AliceNoKagami;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\local-bin\libs\msvc_x86_64\sqlite3;C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -106,15 +111,27 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/libs/include;$(MSBuildProjectDirectory);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>BUILDING_LIBCURL;HTTP_ONLY</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>libcurl_a.lib;sqlite3.lib;libcrypto.lib;libssl.lib;Crypt32.lib;Normaliz.lib;ws2_32.lib;winmm.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
-    </Link>
+    <Link />
     <BuildLog>
       <Path>$(IntDir)$(MSBuildProjectName).log</Path>
     </BuildLog>
+    <Link>
+      <AdditionalDependencies>sqlite3.lib;libcurl_a.lib;ws2_32.lib;winmm.lib;Crypt32.lib;Normaliz.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local-bin\libs\msvc_x86_64\sqlite3;C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <AdditionalDependencies>sqlite3.lib;libcurl_a.lib;ws2_32.lib;winmm.lib;Crypt32.lib;Normaliz.lib;wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local-bin\libs\msvc_x86_64\sqlite3;C:\local-bin\libs\msvc_x86_64\libcurl-static-ipv6-sspi-winssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>CURL_STATICLIB;CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\AliceNoKagami.hpp" />
