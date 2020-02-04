@@ -8,6 +8,7 @@ using namespace std;
 #ifdef __linux__
 pthread_key_t env_key;
 pthread_key_t self_key;
+#define ExitThread(x) pthread_exit(x)
 #elif _MSC_VER
 DWORD env_key;
 DWORD self_key;
@@ -230,7 +231,7 @@ size_t WonderlandAdaptor::GetParsedSync( \
             pthread_key_delete(self_key);
             return 0;
         }
-        jmp_buf* env = (jmp_buf*)pthread_getspecific(env_key);
+        env = (jmp_buf*)pthread_getspecific(env_key);
         free(env);
         pthread_key_delete(env_key);
         pthread_key_delete(self_key);
