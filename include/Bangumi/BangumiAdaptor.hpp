@@ -3,6 +3,10 @@
 /* Bangumi.tv & bgm.tv */
 
 #include "include/WonderlandAdaptor.hpp"
+#include "src/third-party/gumbo-parser/Node.h"
+#include "src/third-party/nlohmann/json.hpp"
+
+
 
 #define _BGM_PROTOCOL_ "https:"
 #define _BGM_DOMAIN_   "bgm.tv"
@@ -20,6 +24,8 @@ class BangumiAdaptor : public WonderlandAdaptor{
 
     private:
         static std::string ParseImageURI(std::string style_bg_image, int type){
+            // type --> length of type:
+            //              example : type = strlen("cover")
           std::string avatar_header;
           if(style_bg_image.find("//") != std::string::npos){
               avatar_header = style_bg_image.substr(style_bg_image.find_first_of("/"));
@@ -32,9 +38,10 @@ class BangumiAdaptor : public WonderlandAdaptor{
           }else{
               avatar_header = avatar_header.substr(0,avatar_header.find_first_of('?'));
           }
-          avatar_header[strlen("//lain.bgm.tv/pic//") + type] = 'l';        // begin from 0 change image to 'large'
+          avatar_header[strlen("//lain.bgm.tv/pic//") + type] = 'l';        
           return std::string(_BGM_PROTOCOL_).append(avatar_header);
         }
+        static nlohmann::json ParseUserHomepagePictureList(CNode d, std::string separator);
 };
 
 #endif

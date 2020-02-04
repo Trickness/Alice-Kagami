@@ -1,7 +1,6 @@
 ﻿#include "include/Bangumi/BangumiAdaptor.hpp"
 #include "src/third-party/gumbo-parser/Document.h"
 #include "src/third-party/gumbo-parser/Node.h"
-#include "src/third-party/nlohmann/json.hpp"
 #include <vector>
 
 using namespace std;
@@ -33,6 +32,52 @@ bool BangumiAdaptor::CheckURI(const string &URI) const {
           return true;
     }
     return false;
+}
+
+json BangumiAdaptor::ParseUserHomepagePictureList(CNode d, std::string separator){
+    json v = json::object();
+    if(d.find("div.horizontalOptions").nodeNum() == 1){
+        
+    }
+    if(d.find("div.clearit").nodeNum() != 0){
+        CSelection ls = d.find("div.clearit");
+        for(auto index = 0; index < ls.nodeNum(); ++index){
+            CNode tmpItem = ls.nodeAt(index);
+            if(tmpItem.attribute("class") != "clearit"){
+                CSelection ls = tmpItem.find("li");
+                v["overview"] = {};
+                std::string title = "";
+                for(auto index = 0; index < ls.nodeNum(); ++index){
+                    CNode item = ls.nodeAt(index);
+                    if(item.attribute("class") == "title"){
+                        title = item.text();
+                    }else{
+                        std::string txt = item.text();
+                        std::vector<std::string> list = split(txt,separator);
+                        v["overview"][list[1]] = stoi(list[0]);
+                    }
+                }
+                v["title"] = title;
+            }else{
+                string status = tmpItem.find("div.substatus").nodeAt(0).ownText();
+                CSelection lss = tmpItem.find("li");
+                std::vector<json> vec;
+                for(auto i = 0; i < lss.nodeNum(); ++i){
+                    CNode item = lss.nodeAt(i);
+                    json j = json::object();
+                    CNode a = item.find("a").nodeAt(0);
+                    j["title"] = a.attribute("title");
+                    j["link"] = string(_BGM_PROTOCOL_) + "//" + _BGM_DOMAIN_ + a.attribute("href");
+                    j["id"] = stoi(a.attribute("href").substr(strlen("/subject/")));
+                    j["image"] = BangumiAdaptor::ParseImageURI(a.find("img").nodeAt(0).attribute("data-cfsrc"),strlen("cover"));
+                    vec.push_back(j);
+                }
+                v[status] = vec;
+            }
+            
+        }
+    }
+    return v;
 }
 
 // TODOs:
@@ -419,7 +464,148 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
         }else if(t_str == "user"){  // user page
-            return "";
+            if(splited.size() == 3){    // user homepage
+                if(doc.find("div.message").nodeNum() != 0){ // with message
+                    j["message"] = doc.find("div.message").nodeAt(0).find("p.text").nodeAt(0).text();
+                    j["URI"] = URI;
+                    string json_str = "";
+                    try {
+                        json_str = j.dump();
+                    }
+                    catch (char *e) {
+                        DEBUG_MSG(e);
+                        free(e);
+                    }
+                    return json_str;
+                }
+                if(doc.find("div.tipIntro").nodeNum() != 0){
+                    auto item = doc.find("div.tipIntro").nodeAt(0);
+                    j["attention"] = {
+                        {"title" ,item.find("h3").nodeAt(0).ownText()},
+                        {"content",item.find("p.tip").nodeAt(0).ownText()}
+                    };
+                }
+                if(doc.find("#headerProfile").nodeNum() == 1){  // header profile
+                    auto item = doc.find("#headerProfile").nodeAt(0);
+                    j["user"] = json::object();
+                    j["user"]["name"] = item.find("div.inner").nodeAt(0).find("a").nodeAt(0).ownText();
+                    j["user"]["avatar"] = \
+                        BangumiAdaptor::ParseImageURI(item.find("a.avatar").nodeAt(0).find("span").nodeAt(0).attribute("style"),strlen("user"));
+                    j["user"]["id"] = item.find("a.avatar").nodeAt(0).attribute("href").substr(strlen("/user/"));
+
+                }
+                if(doc.find("div.bio").nodeNum() == 1){         // self intro
+                    auto item = doc.find("div.bio").nodeAt(0);
+                    j["introduce"] = Data.substr(item.startPos(),item.endPos() - item.startPos());
+                }
+                if(doc.find("ul.timeline").nodeNum() == 1){     // timeline
+                    CSelection ls = doc.find("ul.timeline").nodeAt(0).find("li");
+                    std::vector<json> vec;
+                    for(auto index = 0; index < ls.nodeNum(); ++index){
+                        CNode item = ls.nodeAt(index);
+                        json v = json::object();
+                        v["time"] = item.find("small.time").nodeAt(0).ownText();
+                        CNode feed = item.find("small.feed").nodeAt(0);
+                        v["feed"] = feed.text();
+                        CSelection lss = feed.find("a");
+                        std::vector<json> links;            
+                        for(auto i = 0; i < lss.nodeNum(); ++i){
+                            CNode a = lss.nodeAt(i);
+                            json t = json::object();
+                            t["title"] = a.ownText();
+                            t["link"] = a.attribute("href");
+                            links.push_back(t);
+                        }
+                        v["links"] = links;     // fixme: 是用 "links" 么？
+                        vec.push_back(v);
+                    }
+                    j["timeline"] = vec;
+                }
+                if(doc.find("#friend").nodeNum() == 1){         // friend list
+                    CSelection ls = doc.find("#friend").nodeAt(0).find("dl");
+                    std::vector<json> vec;
+                    for(auto index = 0; index < ls.nodeNum(); ++index){
+                        CNode item = ls.nodeAt(index);
+                        json v = json::object();
+                        v["nickname"] = item.find("dd").nodeAt(0).text();
+                        v["avatar"] = this->ParseImageURI(item.find("span.avatarNeue").nodeAt(0).attribute("style"),strlen("user"));
+                        v["id"] = item.find("a.avatar").nodeAt(0).attribute("href").substr(strlen("/user/"));
+                        vec.push_back(v);
+                    }
+                    j["friends"] = vec;
+                }
+                if(doc.find("ul.network_service").nodeNum() == 1){  // SNS
+                    CSelection ls = doc.find("ul.network_service").nodeAt(0).find("li");
+                    std::vector<json> vec;
+                    for(auto index = 0; index < ls.nodeNum(); ++index){
+                        CNode item = ls.nodeAt(index);
+                        json v = json::object();
+                        v["host"] = item.find("span.service").nodeAt(0).ownText();
+                        if(item.find("a.l").nodeNum() != 0){
+                            v["link"] = item.find("a.l").nodeAt(0).attribute("href");
+                            v["text"] = item.find("a.l").nodeAt(0).ownText();
+                        }else{
+                            v["text"] = item.find("span.tip").nodeAt(0).ownText();
+                        }
+                        vec.push_back(v);
+                    }
+                    j["sns"] = vec;
+                }
+                if(doc.find("div#music").nodeNum() == 1){       // Music list
+                    j["music"] = this->ParseUserHomepagePictureList(doc.find("div#music").nodeAt(0),"张");
+                }
+                if(doc.find("div#anime").nodeNum() == 1){       // Anime list
+                    j["anime"] = this->ParseUserHomepagePictureList(doc.find("div#anime").nodeAt(0),"部");
+                }
+                if(doc.find("div#book").nodeNum() == 1){        // Book list
+                    j["book"] = this->ParseUserHomepagePictureList(doc.find("div#book").nodeAt(0),"本");
+                }
+                if(doc.find("div#game").nodeNum() == 1){        // Book list
+                    j["game"] = this->ParseUserHomepagePictureList(doc.find("div#game").nodeAt(0),"部");
+                }
+                if(doc.find("div#real").nodeNum() == 1){        // TV Series list
+                    j["real"] = this->ParseUserHomepagePictureList(doc.find("div#real").nodeAt(0),"部");
+                }
+                if(doc.find("div#group").nodeNum() == 1){       // Groups
+                    CSelection ls = doc.find("div#group").nodeAt(0).find("li");
+                    std::vector<json> vec;
+                    for(auto index = 0; index < ls.nodeNum(); ++index){
+                        CNode item = ls.nodeAt(index);
+                        json v = json::object();
+                        CNode tmpNode = item.find("img").nodeAt(0);
+                        v["image"] = this->ParseImageURI(item.find("img").nodeAt(0).attribute("data-cfsrc"),strlen("icon"));
+                        std::string id = item.find("a.l").nodeAt(0).attribute("href");
+                        v["link"] = std::string(_BGM_PROTOCOL_) + "//" + _BGM_DOMAIN_ + id;
+                        v["id"] = id.substr(strlen("/group/"));
+                        std::string people = item.find("small.feed").nodeAt(0).ownText();
+                        v["people"] = split(people," ")[0];
+                        vec.push_back(v);
+                    }
+                    j["groups"] = vec;
+                }
+                if(doc.find("#mono").nodeNum() == 1){         // bookmarked characters list
+                    CSelection ls = doc.find("#mono").nodeAt(0).find("dl");
+                    std::vector<json> vec;
+                    for(auto index = 0; index < ls.nodeNum(); ++index){
+                        CNode item = ls.nodeAt(index);
+                        json v = json::object();
+                        v["name"] = item.find("dd").nodeAt(0).text();
+                        v["avatar"] = this->ParseImageURI(item.find("img.avatar").nodeAt(0).attribute("data-cfsrc"),strlen("crt"));
+                        CNode tmpNode = item.find("a.l").nodeAt(0);
+                        auto list = split(item.find("a.l").nodeAt(0).attribute("href"),"/");
+                        if(list.size() != 3){
+                            DEBUG_MSG("Failed to split " << item.find("a.l").nodeAt(0).attribute("href"));
+                            vec.push_back(v);
+                            continue;
+                        }
+                        v["id"] = list[2];
+                        v["type"] = list[1];
+                        vec.push_back(v);
+                    }
+                    j["character"] = vec;
+                }
+            }
+            
         }else{
             return "";
         }
