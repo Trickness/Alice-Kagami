@@ -80,6 +80,104 @@ json BangumiAdaptor::ParseUserHomepagePictureList(CNode d, std::string separator
     return v;
 }
 
+json BangumiAdaptor::ParseInfobox(CNode d){
+    CSelection infobox = d.find("li");
+    json j = json::array();
+    for (size_t i = 0; i < infobox.nodeNum(); ++i){
+        CNode item = infobox.nodeAt(i);
+        string info = item.text();
+        int loc = info.find_first_of(':');
+        std::string key = info.substr(0,loc);
+        CSelection links = item.find("a");
+        json link_j = json::object();
+        json v = json::object();
+        for(size_t j = 0; j < links.nodeNum(); ++j){
+            CNode links_item = links.nodeAt(j);
+            link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
+        }
+        if(v[key] != nullptr){
+            string s = v[key]["text"];
+            v[key]["text"] = s.append("\n").append(info.substr(loc+2));
+            link_j.merge_patch(v[key]["links"]);
+        }else{
+            v[key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
+        }
+        v[key]["links"] = link_j;
+        j.push_back(v);
+    }
+    return j;
+}
+
+json BangumiAdaptor::ParseSlimSubject(CNode item){
+    json v = json::object();
+    v["name"] = item.find("a.l").nodeAt(0).ownText();
+    if(item.find("span.ll").nodeNum() == 1){
+        int type_n = item.find("span.ll").nodeAt(0).attribute("class").at(strlen("ico_subject_type subject_type_")) - 48;
+        v["type"] = IntToTypeStr[type_n - 1];
+    }
+    if(item.find("span.badge_job").nodeNum() == 1)  v["job"] = item.find("span.badge_job").nodeAt(0).ownText();
+    if(item.find("small.grey").nodeNum() == 1)      v["translate"] = item.find("small.grey").nodeAt(0).ownText();
+    if(item.find("img.cover").nodeNum())       v["cover"] = \
+        BangumiAdaptor::ParseImageURI(item.find("img.cover").nodeAt(0).attribute("data-cfsrc"),strlen("cover"));
+    if(item.find("a.l").nodeNum())         v["link"] = \
+        string(_BGM_PROTOCOL_) + "//" + _BGM_DOMAIN_ + item.find("a.l").nodeAt(0).attribute("href");
+    return v;
+}
+
+json BangumiAdaptor::ParseSlimCharacter(CNode item){
+    json v = json::object();
+    // FIXME: 解析没有头像的声优时是否会崩溃
+    CNode a = item.find("a.avatar").nodeAt(0);
+    if(a.valid()){
+        v["name"] = a.attribute("title");
+        v["link"] = string(_BGM_PROTOCOL_) + "//" + _BGM_DOMAIN_ + a.attribute("href");
+        //v["id"] = a.attribute("href").substr(strlen("/person/"));
+        if(a.find("img").nodeNum())
+            v["avatar"] = BangumiAdaptor::ParseImageURI(a.find("img").nodeAt(0).attribute("data-cfsrc"),strlen("crt"));
+    }
+    return v;
+}
+json BangumiAdaptor::ParseCrtCommentList(CNode d,const string &Data){
+    json j = json::array();
+    CSelection ls = d.find("div.row_reply");
+    for(int index = 0; index < ls.nodeNum(); ++index){
+        j.push_back(BangumiAdaptor::ParseCrtCommentListItem(ls.nodeAt(index),Data));
+    }
+    return j;
+}
+json BangumiAdaptor::ParseCrtCommentListItem(CNode item,const string &Data){
+    json v = json::object();
+    v["id"] = stoi(item.attribute("id").substr(strlen("post_")));
+    //v["floor"] = stoi(item.attribute("name").substr(strlen("floor-")));
+    v["datetime"] = item.find(".re_info").nodeAt(0).find("small").nodeAt(0).ownText().substr(strlen("- "));
+    v["floor"] = stoi(item.find(".re_info").nodeAt(0).find("a.floor-anchor").nodeAt(0).ownText().substr(strlen("#")));
+    json user = json::object();
+
+    CNode a = item.find("a.avatar").nodeAt(0);
+    user["id"] = a.attribute("href").substr(strlen("/user/"));
+    user["avatar"] = BangumiAdaptor::ParseImageURI(a.find("span").nodeAt(0).attribute("style"),strlen("user"));
+
+    CNode inner = item.find("div.inner").nodeAt(0);
+    user["name"] = inner.find("a.l").nodeAt(0).ownText();
+    if(inner.find("span.tip_j").nodeNum() == 1) user["signature"] = inner.find("span.tip_j").nodeAt(0).ownText();
+    v["user"] = user;
+    CNode reply = item.find("div.reply_content").nodeAt(0);
+    CNode content;
+    if(!reply.valid()){     // subreply
+        content = item.find("div.cmt_sub_content").nodeAt(0);
+        v["content"] = Data.substr(content.startPos(), content.endPos() - content.startPos());
+        return v;
+    }
+    content = reply.find("div.message").nodeAt(0);
+    v["content"] = Data.substr(content.startPos(), content.endPos() - content.startPos());
+
+    CSelection ls = reply.find("div.sub_reply_bg");
+    for(int i = 0; i < ls.nodeNum(); ++i){
+        v["subreply"].push_back(BangumiAdaptor::ParseCrtCommentListItem(ls.nodeAt(i),Data));
+    }
+    return v;
+}
+
 // TODOs:
 std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
     if(Data.empty())    return "";
@@ -143,31 +241,7 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
             }
 
             if(doc.find("#infobox").nodeNum() != 0){       // info box
-                CSelection infobox = doc.find("#infobox").nodeAt(0).find("li");
-		        j["infobox"] = json::array();
-                for (size_t i = 0; i < infobox.nodeNum(); ++i){
-                    CNode item = infobox.nodeAt(i);
-                    string info = item.text();
-                    int loc = info.find_first_of(':');
-                    std::string key = info.substr(0,loc);
-                    CSelection links = item.find("a");
-                    json link_j = json::object();
-		            json v = json::object();
-                    for(size_t j = 0; j < links.nodeNum(); ++j){
-                        CNode links_item = links.nodeAt(j);
-                        link_j[links_item.ownText()] = string(_BGM_PROTOCOL_).append("//").append(_BGM_DOMAIN_).append(links_item.attribute("href"));
-                    }
-                    if(v[key] != nullptr){
-                        string s = v[key]["text"];
-                        v[key]["text"] = s.append("\n").append(info.substr(loc+2));
-                        //v[key]["text"] =  string(v[key]["text"]).append("\n").append(info.substr(loc+2));
-                        link_j.merge_patch(v[key]["links"]);
-                    }else{
-                        v[key] = {{"text",info.substr(loc+2)}};     // skip ':' and space
-                    }
-                    v[key]["links"] = link_j;
-		            j["infobox"].push_back(v);
-                }
+                j["infobox"] = this->ParseInfobox(doc.find("#infobox").nodeAt(0));
             }
             if(doc.find("#subjectPanelIndex").nodeNum() != 0){       // related index
                 CSelection related_index = doc.find("#subjectPanelIndex").nodeAt(0).find("li.clearit");
@@ -606,6 +680,108 @@ std::string BangumiAdaptor::ParseContent(string URI, const string &Data ) const{
                 }
             }
             
+        }else if(t_str == "character" or t_str == "person"){
+            j["type"] = t_str;
+            if(doc.find("h1.nameSingle").nodeNum() == 1){
+                CNode item = doc.find("h1.nameSingle").nodeAt(0);
+                if(item.find("a").nodeNum() == 1){
+                    j["name"] = item.find("a").nodeAt(0).ownText();
+                }
+                if(item.find("small.gray").nodeNum() == 1){
+                    j["translate"] = item.find("small.grey").nodeAt(0).ownText();
+                }
+            }
+            if(doc.find("a.thickbox").nodeNum() == 1){
+                j["avatar"] = this->ParseImageURI(doc.find("a.thickbox").nodeAt(0).attribute("href"),strlen("crt"));
+            }
+            if(doc.find("#infobox").nodeNum() == 1){
+                j["infobox"] = this->ParseInfobox(doc.find("#infobox").nodeAt(0));
+            }
+            if(doc.find("#columnCrtB").nodeNum() == 1){
+                CNode tnode = doc.find("#columnCrtB").nodeAt(0);
+                CNode item = tnode.childAt(1);  // child(0) is "\n"
+
+                if (item.attribute("class") != "clearit"){
+                    return "";
+                }
+                if(item.find("h2").nodeNum() == 1){
+                    j["title"] = item.find("h2").nodeAt(0).ownText();
+                }
+
+                do{
+                    item = item.nextSibling();
+                    string tmpStr = item.text();
+                    if(!item.valid()) return "";
+                }while(item.text() == "");
+                
+                if(item.attribute("class") == "detail"){
+                    j["detail"] = Data.substr(item.startPos(), item.endPos() - item.startPos());
+                    item = item.nextSibling();
+                    if(!item.valid())   return "";
+                }
+
+                do{
+                    item = item.nextSibling();
+                    string tmpStr = item.text();
+                    if(!item.valid()) return "";
+                }while(item.ownText() == "");
+
+                while(item.attribute("class") == "subtitle"){
+                    std::string tag = item.ownText();
+                    do{
+                        item = item.nextSibling();
+                        if(!item.valid()) return "";
+                    }while(item.tag() != "ul");
+                    if(tag == "出演"){
+                        CSelection lss = item.find("li.item");
+                        j["starred"] = json::array();
+                        for(int i = 0; i < lss.nodeNum(); ++i){
+                            CNode inode = lss.nodeAt(i);
+                            json v = this->ParseSlimSubject(inode.find("div.innerLeftItem").nodeAt(0));
+                            v["CV"] = json::array();
+                            CSelection lsss = inode.find("li.clearit");
+                            for(int i = 0; i < lsss.nodeNum(); ++i){
+                                v["CV"].push_back(this->ParseSlimCharacter(lsss.nodeAt(i)));
+                            }
+                            j["starred"].push_back(v);
+                        }
+                    }else if(tag == "最近演出角色"){
+                        CSelection lss = item.find("li.item");
+                        j["recent_starred"] = json::array();
+                        for(int i = 0; i < lss.nodeNum(); ++i){
+                            CNode inode = lss.nodeAt(i);
+                            json v = this->ParseSlimCharacter(inode.find("div.innerLeftItem").nodeAt(0));
+                            v["subjects"] = json::array();
+                            CSelection lsss = inode.find("ul.innerRightList").nodeAt(0).find("li.clearit");
+                            for(int ii = 0; ii < lsss.nodeNum(); ++ii){
+                                v["subjects"].push_back(this->ParseSlimSubject(lsss.nodeAt(ii)));
+                            }
+                            j["recent_starred"].push_back(v);
+                        }
+                    }else if(tag == "最近参与"){
+                        CSelection lss = item.find("li.item");
+                        j["recent_involved"] = json::array();
+                        for(int i = 0; i < lss.nodeNum(); ++i){
+                            CNode inode = lss.nodeAt(i);
+                            json v = this->ParseSlimSubject(inode.find("div.innerLeftItem").nodeAt(0));
+                            j["recent_involved"].push_back(v);
+                        }
+                    }
+                    do{
+                        item = item.nextSibling();
+                        if(!item.valid()) return "";
+                    }while(item.attribute("class") != "subtitle" and item.attribute("class") != "crtCommentList");
+                }
+            }
+            j["comments"] = this->ParseCrtCommentList(doc.find("#comment_list").nodeAt(0),Data);
+            // TODO: 角色/人物收藏
+        }else if(t_str == "group"){
+            if(splited.size() == 4 and splited[2] == "topic"){
+                // TODO: topic's title、还有楼主的发言
+                if(doc.find("#comment_list").nodeNum() == 1){
+                    j["comments"] = this->ParseCrtCommentList(doc.find("#comment_list").nodeAt(0),Data);
+                }
+            }
         }else{
             return "";
         }
